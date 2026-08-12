@@ -1,0 +1,33 @@
+# Build files
+build/
+mysql-test-build/
+
+# Visual Studio / CMake
+.vs/
+*.suo
+*.user
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+
+# Executables and DLLs
+*.exe
+*.dll
+*.obj
+*.lib
+*.pdb
+
+# vcpkg
+vcpkg_installed/
+vcpkg/downloads/
+vcpkg/buildtrees/
+vcpkg/packages/
+vcpkg/binarycache/
+
+# Logs
+*.log
+
+# Environment / secrets
+.env
+.env.*

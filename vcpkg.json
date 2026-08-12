@@ -1,0 +1,17 @@
+{
+  "name": "kanimart",
+  "version-string": "0.1.0",
+  "description": "KaniMart - Native C++20 Multi-Seller E-Commerce Marketplace",
+  "dependencies": [
+    {
+      "name": "drogon",
+      "features": [
+        "mysql"
+      ]
+    },
+    "libsodium",
+    "nlohmann-json",
+    "spdlog",
+    "gtest"
+  ]
+}
