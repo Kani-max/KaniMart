@@ -33,3 +33,8 @@ vcpkg/binarycache/
 .env.*
 # Local application configuration
 config.json
+
+# Local configuration
+config.json
+
+config.json
