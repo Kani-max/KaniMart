@@ -19,9 +19,12 @@ find_package(spdlog CONFIG REQUIRED)
 
 add_executable(kanimart
     src/main.cpp
+
+    src/controllers/AuthController.cpp
     src/controllers/HomeController.cpp
-    src/controllers/UserController.cpp
     src/controllers/ProductController.cpp
+    src/controllers/UserController.cpp
+
     src/services/UserService.cpp
 )
 
@@ -42,16 +45,3 @@ if(MSVC)
 else()
     target_compile_options(kanimart PRIVATE -Wall -Wextra -Wpedantic)
 endif()
-
-# Temporary MySQL/MariaDB connection test
-add_executable(mysql_test
-    mysql_test.cpp
-)
-
-target_include_directories(mysql_test PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg_installed/x64-windows/include/mysql"
-)
-
-target_link_libraries(mysql_test PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg_installed/x64-windows/lib/libmariadb.lib"
-)

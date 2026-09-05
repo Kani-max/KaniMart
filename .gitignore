@@ -31,3 +31,5 @@ vcpkg/binarycache/
 # Environment / secrets
 .env
 .env.*
+# Local application configuration
+config.json
