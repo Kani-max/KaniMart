@@ -8,7 +8,10 @@
       "name": "drogon",
       "features": [
         "postgres"
+
       ]
-    }
+    },
+    "nlohmann-json",
+    "spdlog"
   ]
 }
