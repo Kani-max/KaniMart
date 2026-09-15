@@ -8,10 +8,11 @@
       "name": "drogon",
       "features": [
         "postgres"
-
       ]
     },
     "nlohmann-json",
-    "spdlog"
+    "spdlog",
+    "libsodium",
+    "jwt-cpp"
   ]
 }

@@ -6,9 +6,10 @@ namespace kani::kanimart {
 
 void ProductController::listProducts(
     const drogon::HttpRequestPtr&,
-    std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
-
-    try {
+    std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+{
+    try
+    {
         auto db = drogon::app().getDbClient("kanimart");
 
         auto result = db->execSqlSync(
@@ -19,7 +20,8 @@ void ProductController::listProducts(
 
         Json::Value products(Json::arrayValue);
 
-        for (const auto& row : result) {
+        for (const auto& row : result)
+        {
             Json::Value product;
 
             product["id"] = row["id"].as<int>();
@@ -34,9 +36,12 @@ void ProductController::listProducts(
             product["category"] =
                 row["category"].as<std::string>();
 
-            if (row["image_url"].isNull()) {
+            if (row["image_url"].isNull())
+            {
                 product["image_url"] = Json::nullValue;
-            } else {
+            }
+            else
+            {
                 product["image_url"] =
                     row["image_url"].as<std::string>();
             }
@@ -56,7 +61,8 @@ void ProductController::listProducts(
 
         callback(httpResponse);
     }
-    catch (const std::exception& exception) {
+    catch (const std::exception& exception)
+    {
         Json::Value response;
         response["success"] = false;
         response["error"] = exception.what();
@@ -74,10 +80,12 @@ void ProductController::listProducts(
 
 void ProductController::createProduct(
     const drogon::HttpRequestPtr& request,
-    std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
-
-    try {
-        if (!request->getJsonObject()) {
+    std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+{
+    try
+    {
+        if (!request->getJsonObject())
+        {
             Json::Value response;
             response["success"] = false;
             response["error"] =
@@ -118,8 +126,8 @@ void ProductController::createProduct(
             description.empty() ||
             priceCents < 0 ||
             stockQty < 0 ||
-            category.empty()) {
-
+            category.empty())
+        {
             Json::Value response;
             response["success"] = false;
             response["error"] =
@@ -162,7 +170,8 @@ void ProductController::createProduct(
 
         callback(httpResponse);
     }
-    catch (const std::exception& exception) {
+    catch (const std::exception& exception)
+    {
         Json::Value response;
         response["success"] = false;
         response["error"] = exception.what();
@@ -181,10 +190,12 @@ void ProductController::createProduct(
 void ProductController::getProduct(
     const drogon::HttpRequestPtr&,
     std::function<void(const drogon::HttpResponsePtr&)>&& callback,
-    int productId) {
-
-    try {
-        if (productId <= 0) {
+    int productId)
+{
+    try
+    {
+        if (productId <= 0)
+        {
             Json::Value response;
             response["success"] = false;
             response["error"] = "Invalid product ID";
@@ -209,7 +220,8 @@ void ProductController::getProduct(
             "WHERE id = $1",
             productId);
 
-        if (result.empty()) {
+        if (result.empty())
+        {
             Json::Value response;
             response["success"] = false;
             response["error"] = "Product not found";
@@ -249,10 +261,13 @@ void ProductController::getProduct(
         product["category"] =
             row["category"].as<std::string>();
 
-        if (row["image_url"].isNull()) {
+        if (row["image_url"].isNull())
+        {
             product["image_url"] =
                 Json::nullValue;
-        } else {
+        }
+        else
+        {
             product["image_url"] =
                 row["image_url"].as<std::string>();
         }
@@ -272,7 +287,8 @@ void ProductController::getProduct(
 
         callback(httpResponse);
     }
-    catch (const std::exception& exception) {
+    catch (const std::exception& exception)
+    {
         Json::Value response;
         response["success"] = false;
         response["error"] = exception.what();
@@ -284,6 +300,401 @@ void ProductController::getProduct(
             drogon::k500InternalServerError);
 
         callback(httpResponse);
+    }
+}
+
+
+void ProductController::updateProduct(
+    const drogon::HttpRequestPtr& request,
+    std::function<void(const drogon::HttpResponsePtr&)>&& callback,
+    int productId)
+{
+    if (productId <= 0)
+    {
+        Json::Value body;
+        body["success"] = false;
+        body["message"] = "Invalid product ID";
+
+        auto response =
+            drogon::HttpResponse::newHttpJsonResponse(body);
+
+        response->setStatusCode(
+            drogon::k400BadRequest);
+
+        callback(response);
+        return;
+    }
+
+    auto json = request->getJsonObject();
+
+    if (!json)
+    {
+        Json::Value body;
+        body["success"] = false;
+        body["message"] =
+            "Request body must be valid JSON";
+
+        auto response =
+            drogon::HttpResponse::newHttpJsonResponse(body);
+
+        response->setStatusCode(
+            drogon::k400BadRequest);
+
+        callback(response);
+        return;
+    }
+
+    if (!json->isMember("name") ||
+        !(*json)["name"].isString() ||
+        (*json)["name"].asString().empty())
+    {
+        Json::Value body;
+        body["success"] = false;
+        body["message"] = "Name is required";
+
+        auto response =
+            drogon::HttpResponse::newHttpJsonResponse(body);
+
+        response->setStatusCode(
+            drogon::k400BadRequest);
+
+        callback(response);
+        return;
+    }
+
+    if (!json->isMember("description") ||
+        !(*json)["description"].isString())
+    {
+        Json::Value body;
+        body["success"] = false;
+        body["message"] =
+            "Description is required";
+
+        auto response =
+            drogon::HttpResponse::newHttpJsonResponse(body);
+
+        response->setStatusCode(
+            drogon::k400BadRequest);
+
+        callback(response);
+        return;
+    }
+
+    if (!json->isMember("price_cents") ||
+        !(*json)["price_cents"].isInt() ||
+        (*json)["price_cents"].asInt() < 0)
+    {
+        Json::Value body;
+        body["success"] = false;
+        body["message"] =
+            "price_cents must be a non-negative integer";
+
+        auto response =
+            drogon::HttpResponse::newHttpJsonResponse(body);
+
+        response->setStatusCode(
+            drogon::k400BadRequest);
+
+        callback(response);
+        return;
+    }
+
+    if (!json->isMember("stock_qty") ||
+        !(*json)["stock_qty"].isInt() ||
+        (*json)["stock_qty"].asInt() < 0)
+    {
+        Json::Value body;
+        body["success"] = false;
+        body["message"] =
+            "stock_qty must be a non-negative integer";
+
+        auto response =
+            drogon::HttpResponse::newHttpJsonResponse(body);
+
+        response->setStatusCode(
+            drogon::k400BadRequest);
+
+        callback(response);
+        return;
+    }
+
+    if (!json->isMember("category") ||
+        !(*json)["category"].isString() ||
+        (*json)["category"].asString().empty())
+    {
+        Json::Value body;
+        body["success"] = false;
+        body["message"] =
+            "Category is required";
+
+        auto response =
+            drogon::HttpResponse::newHttpJsonResponse(body);
+
+        response->setStatusCode(
+            drogon::k400BadRequest);
+
+        callback(response);
+        return;
+    }
+
+    try
+    {
+        auto db =
+            drogon::app().getDbClient("kanimart");
+
+        const auto name =
+            (*json)["name"].asString();
+
+        const auto description =
+            (*json)["description"].asString();
+
+        const int priceCents =
+            (*json)["price_cents"].asInt();
+
+        const int stockQty =
+            (*json)["stock_qty"].asInt();
+
+        const auto category =
+            (*json)["category"].asString();
+
+        std::string imageUrl;
+
+        if (json->isMember("image_url") &&
+            !(*json)["image_url"].isNull())
+        {
+            if (!(*json)["image_url"].isString())
+            {
+                Json::Value body;
+                body["success"] = false;
+                body["message"] =
+                    "image_url must be a string or null";
+
+                auto response =
+                    drogon::HttpResponse::newHttpJsonResponse(body);
+
+                response->setStatusCode(
+                    drogon::k400BadRequest);
+
+                callback(response);
+                return;
+            }
+
+            imageUrl =
+                (*json)["image_url"].asString();
+        }
+
+        /*
+         * Do not bind C++ nullptr to PostgreSQL.
+         *
+         * The old code used:
+         *
+         *     imageUrl.empty() ? nullptr : imageUrl
+         *
+         * That caused the Drogon/PostgreSQL process to
+         * terminate when image_url was null.
+         *
+         * Instead, explicitly use SQL NULL when imageUrl
+         * is empty.
+         */
+        drogon::orm::Result result;
+
+        if (imageUrl.empty())
+        {
+            result = db->execSqlSync(
+                "UPDATE products "
+                "SET name = $1, description = $2, "
+                "price_cents = $3, stock_qty = $4, "
+                "category = $5, image_url = NULL "
+                "WHERE id = $6 "
+                "RETURNING id, seller_id, name, description, "
+                "price_cents, stock_qty, category, image_url, "
+                "created_at",
+                name,
+                description,
+                priceCents,
+                stockQty,
+                category,
+                productId);
+        }
+        else
+        {
+            result = db->execSqlSync(
+                "UPDATE products "
+                "SET name = $1, description = $2, "
+                "price_cents = $3, stock_qty = $4, "
+                "category = $5, image_url = $6 "
+                "WHERE id = $7 "
+                "RETURNING id, seller_id, name, description, "
+                "price_cents, stock_qty, category, image_url, "
+                "created_at",
+                name,
+                description,
+                priceCents,
+                stockQty,
+                category,
+                imageUrl,
+                productId);
+        }
+
+        if (result.empty())
+        {
+            Json::Value body;
+            body["success"] = false;
+            body["message"] =
+                "Product not found";
+
+            auto response =
+                drogon::HttpResponse::newHttpJsonResponse(body);
+
+            response->setStatusCode(
+                drogon::k404NotFound);
+
+            callback(response);
+            return;
+        }
+
+        const auto& row = result[0];
+
+        Json::Value product;
+
+        product["id"] =
+            row["id"].as<int>();
+
+        product["seller_id"] =
+            row["seller_id"].as<int>();
+
+        product["name"] =
+            row["name"].as<std::string>();
+
+        product["description"] =
+            row["description"].as<std::string>();
+
+        product["price_cents"] =
+            row["price_cents"].as<int>();
+
+        product["stock_qty"] =
+            row["stock_qty"].as<int>();
+
+        product["category"] =
+            row["category"].as<std::string>();
+
+        if (row["image_url"].isNull())
+        {
+            product["image_url"] =
+                Json::nullValue;
+        }
+        else
+        {
+            product["image_url"] =
+                row["image_url"].as<std::string>();
+        }
+
+        product["created_at"] =
+            row["created_at"].as<std::string>();
+
+        Json::Value body;
+        body["success"] = true;
+        body["message"] =
+            "Product updated successfully";
+        body["data"] = product;
+
+        callback(
+            drogon::HttpResponse::newHttpJsonResponse(body));
+    }
+    catch (const std::exception& e)
+    {
+        Json::Value body;
+        body["success"] = false;
+        body["message"] =
+            std::string("Failed to update product: ") +
+            e.what();
+
+        auto response =
+            drogon::HttpResponse::newHttpJsonResponse(body);
+
+        response->setStatusCode(
+            drogon::k500InternalServerError);
+
+        callback(response);
+    }
+}
+
+
+void ProductController::deleteProduct(
+    const drogon::HttpRequestPtr&,
+    std::function<void(const drogon::HttpResponsePtr&)>&& callback,
+    int productId)
+{
+    if (productId <= 0)
+    {
+        Json::Value body;
+        body["success"] = false;
+        body["message"] =
+            "Invalid product ID";
+
+        auto response =
+            drogon::HttpResponse::newHttpJsonResponse(body);
+
+        response->setStatusCode(
+            drogon::k400BadRequest);
+
+        callback(response);
+        return;
+    }
+
+    try
+    {
+        auto db =
+            drogon::app().getDbClient("kanimart");
+
+        auto result = db->execSqlSync(
+            "DELETE FROM products "
+            "WHERE id = $1 "
+            "RETURNING id",
+            productId);
+
+        if (result.empty())
+        {
+            Json::Value body;
+            body["success"] = false;
+            body["message"] =
+                "Product not found";
+
+            auto response =
+                drogon::HttpResponse::newHttpJsonResponse(body);
+
+            response->setStatusCode(
+                drogon::k404NotFound);
+
+            callback(response);
+            return;
+        }
+
+        Json::Value body;
+        body["success"] = true;
+        body["message"] =
+            "Product deleted successfully";
+        body["data"]["id"] =
+            result[0]["id"].as<int>();
+
+        callback(
+            drogon::HttpResponse::newHttpJsonResponse(body));
+    }
+    catch (const std::exception& e)
+    {
+        Json::Value body;
+        body["success"] = false;
+        body["message"] =
+            std::string("Failed to delete product: ") +
+            e.what();
+
+        auto response =
+            drogon::HttpResponse::newHttpJsonResponse(body);
+
+        response->setStatusCode(
+            drogon::k500InternalServerError);
+
+        callback(response);
     }
 }
 

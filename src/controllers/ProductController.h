@@ -24,6 +24,16 @@ public:
         "/api/products/{1}",
         drogon::Get);
 
+    ADD_METHOD_TO(
+        ProductController::updateProduct,
+        "/api/products/{1}",
+        drogon::Put);
+
+    ADD_METHOD_TO(
+        ProductController::deleteProduct,
+        "/api/products/{1}",
+        drogon::Delete);
+
     METHOD_LIST_END
 
     void listProducts(
@@ -35,6 +45,16 @@ public:
         std::function<void(const drogon::HttpResponsePtr&)>&& callback);
 
     void getProduct(
+        const drogon::HttpRequestPtr& request,
+        std::function<void(const drogon::HttpResponsePtr&)>&& callback,
+        int productId);
+
+    void updateProduct(
+        const drogon::HttpRequestPtr& request,
+        std::function<void(const drogon::HttpResponsePtr&)>&& callback,
+        int productId);
+
+    void deleteProduct(
         const drogon::HttpRequestPtr& request,
         std::function<void(const drogon::HttpResponsePtr&)>&& callback,
         int productId);

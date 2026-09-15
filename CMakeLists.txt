@@ -16,23 +16,29 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(Drogon CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
+find_package(unofficial-sodium CONFIG REQUIRED)
+find_package(jwt-cpp CONFIG REQUIRED)
 
 add_executable(kanimart
     src/main.cpp
 
     src/controllers/AuthController.cpp
+    src/controllers/CartController.cpp
+    src/controllers/OrderController.cpp
     src/controllers/HomeController.cpp
     src/controllers/ProductController.cpp
+    src/controllers/ReviewController.cpp
     src/controllers/UserController.cpp
 
     src/services/UserService.cpp
+    src/services/JwtService.cpp
 )
-
-target_link_libraries(kanimart
-    PRIVATE
+target_link_libraries(kanimart PRIVATE
     Drogon::Drogon
     nlohmann_json::nlohmann_json
     spdlog::spdlog
+    unofficial-sodium::sodium
+    jwt-cpp::jwt-cpp
 )
 
 target_include_directories(kanimart
@@ -45,3 +51,4 @@ if(MSVC)
 else()
     target_compile_options(kanimart PRIVATE -Wall -Wextra -Wpedantic)
 endif()
+
