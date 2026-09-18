@@ -13,6 +13,7 @@
     "nlohmann-json",
     "spdlog",
     "libsodium",
-    "jwt-cpp"
+    "jwt-cpp",
+    "picojson"
   ]
 }

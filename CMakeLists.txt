@@ -19,6 +19,8 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(unofficial-sodium CONFIG REQUIRED)
 find_package(jwt-cpp CONFIG REQUIRED)
 
+find_path(PICOJSON_INCLUDE_DIRS "picojson/picojson.h" REQUIRED) 
+
 add_executable(kanimart
     src/main.cpp
 
@@ -28,7 +30,7 @@ add_executable(kanimart
     src/controllers/HomeController.cpp
     src/controllers/ProductController.cpp
     src/controllers/ReviewController.cpp
-    src/controllers/UserController.cpp
+   
 
     src/services/UserService.cpp
     src/services/JwtService.cpp
@@ -44,6 +46,7 @@ target_link_libraries(kanimart PRIVATE
 target_include_directories(kanimart
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${PICOJSON_INCLUDE_DIRS}
 )
 
 if(MSVC)
