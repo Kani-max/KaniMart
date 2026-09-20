@@ -361,12 +361,12 @@ void AuthController::login(
 
         callback(resp);
     }
-    catch (const std::exception&)
+    catch (const std::exception& exception)
     {
         Json::Value response;
 
         response["success"] = false;
-        response["error"] = "Authentication failed";
+        response["error"] = exception.what();
 
         auto resp =
             drogon::HttpResponse::newHttpJsonResponse(response);
@@ -378,4 +378,29 @@ void AuthController::login(
     }
 }
 
+void AuthController::options(
+    const drogon::HttpRequestPtr& request,
+    std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+{
+    auto response = drogon::HttpResponse::newHttpResponse();
+    const auto origin = request->getHeader("Origin");
+    if (origin == "http://127.0.0.1:5500" ||
+        origin == "http://localhost:5500")
+    {
+        response->addHeader(
+            "Access-Control-Allow-Origin",
+            origin);
+        response->addHeader(
+            "Access-Control-Allow-Methods",
+            "GET, POST, PUT, DELETE, OPTIONS");
+        response->addHeader(
+            "Access-Control-Allow-Headers",
+            "Content-Type, Authorization");
+        response->addHeader(
+            "Access-Control-Allow-Credentials",
+            "true");
+    }
+    response->setStatusCode(drogon::k200OK);
+    callback(response);
+}
 } // namespace kani::kanimart

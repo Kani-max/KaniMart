@@ -541,5 +541,317 @@ void OrderController::getOrder(
                 drogon::k500InternalServerError));
     }
 }
+void OrderController::updateStatus(
+    const drogon::HttpRequestPtr& request,
+    std::function<void(const drogon::HttpResponsePtr&)>&& callback,
+    int userId,
+    int orderId)
+{
+    AuthMiddleware::User user;
+
+    if (!authenticateUser(request, callback, user))
+    {
+        return;
+    }
+
+    if (user.role != "ADMIN")
+    {
+        callback(AuthMiddleware::forbidden());
+        return;
+    }
+
+    if (userId <= 0 || orderId <= 0)
+    {
+        Json::Value body;
+
+        body["success"] = false;
+        body["message"] =
+            "Invalid user ID or order ID";
+
+        callback(
+            jsonResponse(
+                body,
+                drogon::k400BadRequest));
+
+        return;
+    }
+
+    const auto json = request->getJsonObject();
+
+    if (!json ||
+        !json->isMember("status") ||
+        !(*json)["status"].isString())
+    {
+        Json::Value body;
+
+        body["success"] = false;
+        body["message"] =
+            "Status is required";
+
+        callback(
+            jsonResponse(
+                body,
+                drogon::k400BadRequest));
+
+        return;
+    }
+
+    const std::string newStatus =
+        (*json)["status"].asString();
+
+    if (newStatus != "PENDING" &&
+        newStatus != "CONFIRMED" &&
+        newStatus != "SHIPPED" &&
+        newStatus != "DELIVERED" &&
+        newStatus != "CANCELLED")
+    {
+        Json::Value body;
+
+        body["success"] = false;
+        body["message"] =
+            "Invalid order status";
+
+        callback(
+            jsonResponse(
+                body,
+                drogon::k400BadRequest));
+
+        return;
+    }
+
+    auto db =
+        drogon::app().getDbClient("kanimart");
+
+    try
+    {
+        auto rows =
+            db->execSqlSync(
+                "SELECT id, status "
+                "FROM orders "
+                "WHERE id = $1",
+                orderId);
+
+        if (rows.empty())
+        {
+            Json::Value body;
+
+            body["success"] = false;
+            body["message"] =
+                "Order not found";
+
+            callback(
+                jsonResponse(
+                    body,
+                    drogon::k404NotFound));
+
+            return;
+        }
+
+        const std::string currentStatus =
+            rows[0]["status"].as<std::string>();
+
+        bool validTransition = false;
+
+        if (currentStatus == "PENDING" &&
+            (newStatus == "CONFIRMED" ||
+             newStatus == "CANCELLED"))
+        {
+            validTransition = true;
+        }
+        else if (currentStatus == "CONFIRMED" &&
+                 (newStatus == "SHIPPED" ||
+                  newStatus == "CANCELLED"))
+        {
+            validTransition = true;
+        }
+        else if (currentStatus == "SHIPPED" &&
+                 newStatus == "DELIVERED")
+        {
+            validTransition = true;
+        }
+        else if (currentStatus == newStatus)
+        {
+            validTransition = true;
+        }
+
+        if (!validTransition)
+        {
+            Json::Value body;
+
+            body["success"] = false;
+            body["message"] =
+                "Invalid status transition";
+
+            callback(
+                jsonResponse(
+                    body,
+                    drogon::k400BadRequest));
+
+            return;
+        }
+
+        auto updatedRows =
+            db->execSqlSync(
+                "UPDATE orders "
+                "SET status = $1 "
+                "WHERE id = $2 "
+                "RETURNING id, buyer_id, status, "
+                "total_amount_cents, created_at",
+                newStatus,
+                orderId);
+
+        const auto& row = updatedRows[0];
+
+        Json::Value data;
+
+        data["id"] =
+            row["id"].as<int>();
+
+        data["buyer_id"] =
+            row["buyer_id"].as<int>();
+
+        data["status"] =
+            row["status"].as<std::string>();
+
+        data["total_amount_cents"] =
+            static_cast<Json::Int64>(
+                row["total_amount_cents"].as<int>());
+
+        data["created_at"] =
+            row["created_at"].as<std::string>();
+
+        Json::Value body;
+
+        body["success"] = true;
+        body["data"] = data;
+
+        callback(
+            jsonResponse(body));
+    }
+    catch (const std::exception&)
+    {
+        Json::Value body;
+
+        body["success"] = false;
+        body["message"] =
+            "Failed to update order status";
+
+        callback(
+            jsonResponse(
+                body,
+                drogon::k500InternalServerError));
+    }
+}
+void OrderController::checkoutOptions(
+    const drogon::HttpRequestPtr& request,
+    std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+{
+    auto response = drogon::HttpResponse::newHttpResponse();
+
+    const auto origin = request->getHeader("Origin");
+
+    if (origin == "http://127.0.0.1:5500" ||
+        origin == "http://localhost:5500")
+    {
+        response->addHeader(
+            "Access-Control-Allow-Origin",
+            origin);
+
+        response->addHeader(
+            "Access-Control-Allow-Methods",
+            "GET, POST, PUT, DELETE, OPTIONS");
+
+        response->addHeader(
+            "Access-Control-Allow-Headers",
+            "Content-Type, Authorization");
+
+        response->addHeader(
+            "Access-Control-Allow-Credentials",
+            "true");
+    }
+
+    response->setStatusCode(drogon::k200OK);
+    callback(response);
+}
+void OrderController::getOrdersOptions(
+    const drogon::HttpRequestPtr& request,
+    std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+{
+    auto response = drogon::HttpResponse::newHttpResponse();
+
+    const auto origin = request->getHeader("Origin");
+
+    if (origin == "http://127.0.0.1:5500" ||
+        origin == "http://localhost:5500")
+    {
+        response->addHeader("Access-Control-Allow-Origin", origin);
+        response->addHeader(
+            "Access-Control-Allow-Methods",
+            "GET, POST, PUT, DELETE, OPTIONS");
+        response->addHeader(
+            "Access-Control-Allow-Headers",
+            "Content-Type, Authorization");
+        response->addHeader(
+            "Access-Control-Allow-Credentials",
+            "true");
+    }
+
+    response->setStatusCode(drogon::k200OK);
+    callback(response);
+}
+
+void OrderController::getOrderOptions(
+    const drogon::HttpRequestPtr& request,
+    std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+{
+    auto response = drogon::HttpResponse::newHttpResponse();
+
+    const auto origin = request->getHeader("Origin");
+
+    if (origin == "http://127.0.0.1:5500" ||
+        origin == "http://localhost:5500")
+    {
+        response->addHeader("Access-Control-Allow-Origin", origin);
+        response->addHeader(
+            "Access-Control-Allow-Methods",
+            "GET, POST, PUT, DELETE, OPTIONS");
+        response->addHeader(
+            "Access-Control-Allow-Headers",
+            "Content-Type, Authorization");
+        response->addHeader(
+            "Access-Control-Allow-Credentials",
+            "true");
+    }
+
+    response->setStatusCode(drogon::k200OK);
+    callback(response);
+}
+
+void OrderController::updateStatusOptions(
+    const drogon::HttpRequestPtr& request,
+    std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+{
+    auto response = drogon::HttpResponse::newHttpResponse();
+
+    const auto origin = request->getHeader("Origin");
+
+    if (origin == "http://127.0.0.1:5500" ||
+        origin == "http://localhost:5500")
+    {
+        response->addHeader("Access-Control-Allow-Origin", origin);
+        response->addHeader(
+            "Access-Control-Allow-Methods",
+            "GET, POST, PUT, DELETE, OPTIONS");
+        response->addHeader(
+            "Access-Control-Allow-Headers",
+            "Content-Type, Authorization");
+        response->addHeader(
+            "Access-Control-Allow-Credentials",
+            "true");
+    }
+
+    response->setStatusCode(drogon::k200OK);
+    callback(response);
+}
 
 } // namespace kani::kanimart

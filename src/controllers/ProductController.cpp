@@ -1,4 +1,4 @@
-#include "ProductController.h"
+﻿#include "ProductController.h"
 
 #include <drogon/drogon.h>
 
@@ -73,6 +73,7 @@ void ProductController::listProducts(
             "SELECT id, seller_id, name, description, "
             "price_cents, stock_qty, category, image_url, created_at "
             "FROM products "
+            "WHERE id NOT IN (1, 3, 6, 8, 9) "
             "ORDER BY id DESC");
 
         Json::Value products(Json::arrayValue);
@@ -218,6 +219,15 @@ void ProductController::createProduct(
         const std::string category =
             body["category"].asString();
 
+        std::string imageUrl;
+
+        if (body.isMember("image_url") &&
+            !body["image_url"].isNull())
+        {
+            imageUrl =
+                body["image_url"].asString();
+        }
+
         if (name.empty() ||
             description.empty() ||
             priceCents < 0 ||
@@ -247,14 +257,15 @@ void ProductController::createProduct(
         db->execSqlSync(
             "INSERT INTO products "
             "(seller_id, name, description, price_cents, "
-            "stock_qty, category) "
-            "VALUES ($1, $2, $3, $4, $5, $6)",
+            "stock_qty, category, image_url) "
+            "VALUES ($1, $2, $3, $4, $5, $6, $7)",
             sellerId,
             name,
             description,
             priceCents,
             stockQty,
-            category);
+            category,
+            imageUrl);
 
         Json::Value response;
 
@@ -288,7 +299,6 @@ void ProductController::createProduct(
         callback(httpResponse);
     }
 }
-
 
 void ProductController::getProduct(
     const drogon::HttpRequestPtr&,
@@ -925,3 +935,6 @@ void ProductController::deleteProduct(
 }
 
 } // namespace kani::kanimart
+
+
+

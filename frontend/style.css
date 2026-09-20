@@ -1,0 +1,366 @@
+* {
+    box-sizing: border-box;
+}
+:root {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #172033;
+    background: #f5f7fb;
+}
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #f5f7fb;
+}
+button,
+input,
+select {
+    font: inherit;
+}
+button {
+    cursor: pointer;
+}
+.topbar {
+    min-height: 72px;
+    padding: 0 6%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #111827;
+    color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+}
+.brand {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+.brand h1 {
+    margin: 0;
+    font-size: 26px;
+}
+.brand span {
+    color: #aeb8ca;
+    font-size: 14px;
+}
+.user-area {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 14px;
+}
+.page {
+    width: min(1200px, 92%);
+    margin: 0 auto;
+}
+.auth-container {
+    min-height: calc(100vh - 72px);
+    display: grid;
+    place-items: center;
+}
+.auth-card {
+    width: min(420px, 100%);
+    padding: 36px;
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 12px 40px rgba(20, 30, 50, 0.10);
+}
+.auth-card h2 {
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+.subtitle {
+    color: #687386;
+    margin-bottom: 28px;
+}
+label {
+    display: block;
+    margin: 16px 0 7px;
+    font-weight: 600;
+    font-size: 14px;
+}
+input,
+select {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid #d6dce7;
+    border-radius: 10px;
+    background: white;
+    outline: none;
+}
+input:focus,
+select:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.10);
+}
+.primary-button,
+.secondary-button,
+.cart-button {
+    border: 0;
+    border-radius: 10px;
+    padding: 11px 18px;
+    font-weight: 700;
+}
+.primary-button {
+    width: 100%;
+    margin-top: 20px;
+    background: #4f46e5;
+    color: white;
+}
+.primary-button:hover {
+    background: #4338ca;
+}
+.primary-button:disabled {
+    background: #aeb5c5;
+    cursor: not-allowed;
+}
+.secondary-button {
+    background: #eef1f7;
+    color: #263248;
+}
+.topbar .secondary-button {
+    background: #273247;
+    color: white;
+}
+.cart-button {
+    background: #111827;
+    color: white;
+}
+.cart-button span {
+    display: inline-grid;
+    place-items: center;
+    min-width: 23px;
+    height: 23px;
+    margin-left: 6px;
+    padding: 0 5px;
+    border-radius: 50%;
+    background: #4f46e5;
+}
+.message {
+    min-height: 22px;
+    margin-top: 16px;
+    color: #4f5b70;
+}
+.marketplace {
+    padding: 32px 0 60px;
+}
+.hero {
+    min-height: 250px;
+    padding: 40px;
+    display: flex;
+    align-items: center;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #172554, #4338ca);
+    color: white;
+    overflow: hidden;
+}
+.hero h2 {
+    margin: 5px 0 12px;
+    font-size: clamp(30px, 5vw, 48px);
+}
+.hero p {
+    max-width: 600px;
+    color: #dce3ff;
+    line-height: 1.6;
+}
+.eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 12px;
+    font-weight: 700;
+}
+.toolbar {
+    margin: 28px 0;
+    display: grid;
+    grid-template-columns: 1fr 220px auto;
+    gap: 12px;
+}
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+}
+.section-heading h2 {
+    margin: 0;
+}
+.section-heading p {
+    margin: 5px 0 0;
+    color: #758095;
+    font-size: 14px;
+}
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+}
+.product-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 5px 22px rgba(20, 30, 50, 0.08);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.product-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(20, 30, 50, 0.12);
+}
+.product-card img {
+    width: 100%;
+    height: 210px;
+    display: block;
+    object-fit: cover;
+    background: #edf0f5;
+}
+.product-info {
+    padding: 18px;
+}
+.category {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: #eef2ff;
+    color: #4338ca;
+    font-size: 11px;
+    font-weight: 700;
+}
+.product-info h3 {
+    margin: 12px 0 8px;
+    font-size: 19px;
+}
+.description {
+    min-height: 42px;
+    margin: 0 0 16px;
+    color: #687386;
+    font-size: 14px;
+    line-height: 1.5;
+}
+.product-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+.product-bottom strong {
+    font-size: 20px;
+}
+.stock {
+    color: #16803c;
+    font-size: 12px;
+    font-weight: 700;
+}
+.out-stock {
+    color: #c62828;
+    font-size: 12px;
+    font-weight: 700;
+}
+.empty-state {
+    grid-column: 1 / -1;
+    padding: 60px 20px;
+    text-align: center;
+    background: white;
+    border-radius: 16px;
+}
+.hidden {
+    display: none !important;
+}
+@media (max-width: 850px) {
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .toolbar {
+        grid-template-columns: 1fr 1fr;
+    }
+    .toolbar .secondary-button {
+        grid-column: 1 / -1;
+    }
+}
+@media (max-width: 600px) {
+    .topbar {
+        padding: 12px 4%;
+    }
+    .brand span {
+        display: none;
+    }
+    .user-area {
+        gap: 8px;
+        font-size: 12px;
+    }
+    .page {
+        width: 94%;
+    }
+    .hero {
+        padding: 28px;
+    }
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+    .toolbar {
+        grid-template-columns: 1fr;
+    }
+    .toolbar .secondary-button {
+        grid-column: auto;
+    }
+    .section-heading {
+        align-items: flex-start;
+        gap: 15px;
+    }
+}
+.chatbot-section {
+    margin: 40px auto;
+    max-width: 800px;
+    padding: 24px;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.chat-messages {
+    min-height: 180px;
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 16px 0;
+    padding: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.chat-message {
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+}
+
+.chat-message.user {
+    text-align: right;
+    background: #f1f1f1;
+}
+
+.chat-message.assistant {
+    background: #eef6ff;
+}
+
+.chat-message strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.chat-input-row {
+    display: flex;
+    gap: 10px;
+}
+
+#chatInput {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+#chatSendButton {
+    min-width: 90px;
+}
+
+.chat-status {
+    min-height: 20px;
+    margin-top: 8px;
+}

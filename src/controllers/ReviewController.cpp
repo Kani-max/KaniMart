@@ -186,6 +186,55 @@ void ReviewController::createReview(
             return;
         }
 
+        const auto completedOrderRows =
+            db->execSqlSync(
+                "SELECT 1 "
+                "FROM orders o "
+                "JOIN order_items oi "
+                "ON oi.order_id = o.id "
+                "WHERE o.buyer_id = $1 "
+                "AND oi.product_id = $2 "
+                "AND o.status = 'DELIVERED' "
+                "LIMIT 1",
+                userId,
+                productId);
+
+        if (completedOrderRows.empty())
+        {
+            Json::Value body;
+            body["success"] = false;
+            body["message"] =
+                "You can review a product only after completing an order for it";
+
+            callback(
+                drogon::HttpResponse::newHttpJsonResponse(body));
+
+            return;
+        }
+
+                const auto existingReviewRows =
+            db->execSqlSync(
+                "SELECT 1 "
+                "FROM reviews "
+                "WHERE product_id = $1 "
+                "AND user_id = $2 "
+                "LIMIT 1",
+                productId,
+                userId);
+
+        if (!existingReviewRows.empty())
+        {
+            Json::Value body;
+            body["success"] = false;
+            body["message"] =
+                "You have already reviewed this product";
+
+            callback(
+                drogon::HttpResponse::newHttpJsonResponse(body));
+
+            return;
+        }
+        
         const auto rows =
             db->execSqlSync(
                 "INSERT INTO reviews "
