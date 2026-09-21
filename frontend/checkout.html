@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>KaniMart - Checkout</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 18px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 25px;
+        }
+
+        nav {
+            display: flex;
+            gap: 22px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        .checkout-page {
+            width: 100%;
+            max-width: none;
+            margin: 0;
+            padding: 0 28px 35px;
+        }
+
+        .checkout-heading {
+            margin-bottom: 28px;
+        }
+
+        .checkout-heading h2 {
+            margin: 0 0 8px;
+            font-size: 30px;
+        }
+
+        .checkout-heading p {
+            margin: 0;
+            color: #6b7280;
+        }
+
+        .checkout-layout {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 25px;
+            align-items: start;
+        }
+
+        .checkout-card,
+        .payment-card,
+        .summary-card {
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+        }
+
+        .checkout-card {
+            padding: 25px;
+        }
+
+        .checkout-card h3,
+        .payment-card h3,
+        .summary-card h3 {
+            margin-top: 0;
+            font-size: 20px;
+        }
+
+        .checkout-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 18px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .checkout-item:last-child {
+            border-bottom: none;
+        }
+
+        .checkout-item strong {
+            font-size: 16px;
+        }
+
+        .checkout-item p {
+            margin: 7px 0 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .payment-card {
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        /* PAYMENT METHODS */
+
+        .payment-methods {
+            display: grid;
+            gap: 12px;
+        }
+
+        .payment-method {
+            position: relative;
+        }
+
+        .payment-method input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .payment-label {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .payment-label:hover {
+            border-color: #9ca3af;
+            background: #f9fafb;
+        }
+
+        .payment-method input:checked + .payment-label {
+            border-color: #111827;
+            background: #f9fafb;
+            box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.08);
+        }
+
+        .payment-icon {
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: #f3f4f6;
+            font-size: 21px;
+            flex-shrink: 0;
+        }
+
+        .payment-method input:checked + .payment-label .payment-icon {
+            background: #111827;
+            color: white;
+        }
+
+        .payment-info {
+            flex: 1;
+        }
+
+        .payment-title {
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .payment-description {
+            margin-top: 4px;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .payment-check {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 50%;
+        }
+
+        .payment-method input:checked + .payment-label .payment-check {
+            border: 6px solid #111827;
+        }
+
+        /* PAYMENT DETAILS */
+
+        .payment-details {
+            margin-top: 16px;
+            padding: 18px;
+            border-radius: 12px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+        }
+
+        .payment-details h4 {
+            margin: 0 0 15px;
+            font-size: 15px;
+        }
+
+        .field-group {
+            margin-bottom: 14px;
+        }
+
+        .field-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .field-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .field-group input,
+        .field-group select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .field-group input:focus,
+        .field-group select:focus {
+            border-color: #111827;
+            box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.08);
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .mock-payment {
+            margin-top: 15px;
+            padding: 12px;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
+            color: #92400e;
+            font-size: 13px;
+        }
+
+        .summary-card {
+            padding: 25px;
+            position: sticky;
+            top: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 11px 0;
+            color: #6b7280;
+        }
+
+        .summary-row.total {
+            margin-top: 10px;
+            padding-top: 18px;
+            border-top: 1px solid #e5e7eb;
+            color: #111827;
+            font-size: 21px;
+            font-weight: bold;
+        }
+
+        .place-order-button {
+            width: 100%;
+            margin-top: 22px;
+            padding: 14px;
+            border: none;
+            border-radius: 9px;
+            background: #111827;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .place-order-button:hover {
+            background: #374151;
+        }
+
+        .place-order-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .back-cart {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #374151;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-cart:hover {
+            text-decoration: underline;
+        }
+
+        .checkout-message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 35px;
+            color: #6b7280;
+        }
+
+        .empty-checkout {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .empty-checkout-icon {
+            font-size: 45px;
+            margin-bottom: 12px;
+        }
+
+        .empty-checkout a {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: #111827;
+            color: white;
+            text-decoration: none;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+            padding: 14px;
+            border-radius: 8px;
+        }
+
+        .security-note {
+            margin-top: 20px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        @media (max-width: 800px) {
+            header {
+                padding: 16px 20px;
+            }
+
+            .checkout-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-card {
+                position: static;
+            }
+        }
+
+        @media (max-width: 500px) {
+            header {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .checkout-page {
+                margin-top: 25px;
+            }
+
+            .checkout-item {
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            nav {
+                gap: 12px;
+            }
+
+            .field-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>KaniMart</h1>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="cart.html">Cart</a>
+        <a href="orders.html">Orders</a>
+    </nav>
+</header>
+
+<main class="checkout-page">
+
+    <div class="checkout-heading">
+        <h2>Checkout</h2>
+        <p>Review your order and choose your preferred payment method.</p>
+    </div>
+
+    <div class="checkout-layout">
+
+        <div>
+
+            <section class="checkout-card">
+
+                <h3>Order Items</h3>
+
+                <div id="checkoutSummary">
+                    <div class="loading">
+                        Loading order summary...
+                    </div>
+                </div>
+
+            </section>
+
+            <section class="payment-card">
+
+                <h3>Payment Method</h3>
+
+                <div class="payment-methods">
+
+                    <!-- CARD -->
+
+                    <div class="payment-method">
+
+                        <input
+                            type="radio"
+                            id="card"
+                            name="paymentMethod"
+                            value="card"
+                            checked
+                        >
+
+                        <label
+                            for="card"
+                            class="payment-label"
+                        >
+                            <div class="payment-icon">💳</div>
+
+                            <div class="payment-info">
+                                <div class="payment-title">
+                                    Credit / Debit Card
+                                </div>
+
+                                <div class="payment-description">
+                                    Visa, Mastercard, RuPay and other cards
+                                </div>
+                            </div>
+
+                            <div class="payment-check"></div>
+                        </label>
+
+                    </div>
+
+
+                    <!-- UPI -->
+
+                    <div class="payment-method">
+
+                        <input
+                            type="radio"
+                            id="upi"
+                            name="paymentMethod"
+                            value="upi"
+                        >
+
+                        <label
+                            for="upi"
+                            class="payment-label"
+                        >
+                            <div class="payment-icon">📱</div>
+
+                            <div class="payment-info">
+                                <div class="payment-title">
+                                    UPI
+                                </div>
+
+                                <div class="payment-description">
+                                    Pay using UPI ID
+                                </div>
+                            </div>
+
+                            <div class="payment-check"></div>
+                        </label>
+
+                    </div>
+
+
+                    <!-- NET BANKING -->
+
+                    <div class="payment-method">
+
+                        <input
+                            type="radio"
+                            id="netbanking"
+                            name="paymentMethod"
+                            value="netbanking"
+                        >
+
+                        <label
+                            for="netbanking"
+                            class="payment-label"
+                        >
+                            <div class="payment-icon">🏦</div>
+
+                            <div class="payment-info">
+                                <div class="payment-title">
+                                    Net Banking
+                                </div>
+
+                                <div class="payment-description">
+                                    Select your bank
+                                </div>
+                            </div>
+
+                            <div class="payment-check"></div>
+                        </label>
+
+                    </div>
+
+
+                    <!-- WALLET -->
+
+                    <div class="payment-method">
+
+                        <input
+                            type="radio"
+                            id="wallet"
+                            name="paymentMethod"
+                            value="wallet"
+                        >
+
+                        <label
+                            for="wallet"
+                            class="payment-label"
+                        >
+                            <div class="payment-icon">👛</div>
+
+                            <div class="payment-info">
+                                <div class="payment-title">
+                                    Digital Wallet
+                                </div>
+
+                                <div class="payment-description">
+                                    Choose a wallet
+                                </div>
+                            </div>
+
+                            <div class="payment-check"></div>
+                        </label>
+
+                    </div>
+
+
+                    <!-- COD -->
+
+                    <div class="payment-method">
+
+                        <input
+                            type="radio"
+                            id="cod"
+                            name="paymentMethod"
+                            value="cod"
+                        >
+
+                        <label
+                            for="cod"
+                            class="payment-label"
+                        >
+                            <div class="payment-icon">💰</div>
+
+                            <div class="payment-info">
+                                <div class="payment-title">
+                                    Cash on Delivery
+                                </div>
+
+                                <div class="payment-description">
+                                    Pay when your order arrives
+                                </div>
+                            </div>
+
+                            <div class="payment-check"></div>
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DYNAMIC PAYMENT DETAILS -->
+
+                <div
+                    id="paymentDetails"
+                    class="payment-details"
+                ></div>
+
+
+                <div class="mock-payment">
+                    🧪 <strong>Demo Payment:</strong>
+                    This is a simulated payment system for the
+                    KaniMart capstone project. No real money will
+                    be charged.
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <aside class="summary-card">
+
+            <h3>Order Summary</h3>
+
+            <div class="summary-row">
+                <span>Subtotal</span>
+
+                <span>
+                    ₹<span id="subtotal">0.00</span>
+                </span>
+            </div>
+
+            <div class="summary-row">
+                <span>Delivery</span>
+                <span>Free</span>
+            </div>
+
+            <div class="summary-row total">
+                <span>Total</span>
+
+                <span>
+                    ₹<span id="checkoutTotal">0.00</span>
+                </span>
+            </div>
+
+            <button
+                id="placeOrderButton"
+                class="place-order-button"
+                type="button"
+            >
+                Place Order
+            </button>
+
+            <a
+                href="cart.html"
+                class="back-cart"
+            >
+                ← Back to Cart
+            </a>
+
+            <p
+                id="checkoutMessage"
+                class="checkout-message"
+            ></p>
+
+            <div class="security-note">
+                🔒 Secure checkout · KaniMart
+            </div>
+
+        </aside>
+
+    </div>
+
+</main>
+
+<script src="checkout.js"></script>
+
+</body>
+</html>

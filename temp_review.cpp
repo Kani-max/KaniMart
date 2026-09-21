@@ -24,6 +24,20 @@ bool authenticateUser(
     return true;
 }
 
+bool authorizeUser(
+    int requestedUserId,
+    const AuthMiddleware::User& user,
+    std::function<void(const drogon::HttpResponsePtr&)>& callback)
+{
+    if (requestedUserId != user.id)
+    {
+        callback(AuthMiddleware::forbidden());
+        return false;
+    }
+
+    return true;
+}
+
 } // namespace
 
 void ReviewController::createReview(
@@ -39,8 +53,10 @@ void ReviewController::createReview(
         return;
     }
 
-    // Always use the authenticated user's ID.
-    userId = user.id;
+    if (!authorizeUser(userId, user, callback))
+    {
+        return;
+    }
 
     try
     {
@@ -196,7 +212,7 @@ void ReviewController::createReview(
             return;
         }
 
-        const auto existingReviewRows =
+                const auto existingReviewRows =
             db->execSqlSync(
                 "SELECT 1 "
                 "FROM reviews "
@@ -308,7 +324,8 @@ void ReviewController::getReviews(
                 "ORDER BY r.created_at DESC, r.id DESC",
                 productId);
 
-        Json::Value reviews(Json::arrayValue);
+        Json::Value reviews(
+            Json::arrayValue);
 
         for (const auto& row : rows)
         {
@@ -362,6 +379,22 @@ void ReviewController::getReviews(
         callback(
             drogon::HttpResponse::newHttpJsonResponse(body));
     }
+}
+void ReviewController::options(
+    const drogon::HttpRequestPtr& req,
+    std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+{
+    auto resp = drogon::HttpResponse::newHttpResponse();
+
+    resp->addHeader("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
+    resp->addHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+    resp->addHeader(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Authorization"
+    );
+    resp->addHeader("Access-Control-Allow-Credentials", "true");
+
+    callback(resp);
 }
 
 } // namespace kani::kanimart

@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>KaniMart - Seller Management</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+    <style>
+
+        /* =====================================================
+           GLOBAL
+        ===================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6fa;
+            color: #111827;
+        }
+
+        .seller-page {
+            width: 100%;
+            min-height: 100vh;
+        }
+
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .seller-header {
+            width: 100%;
+            min-height: 56px;
+
+            padding: 0 28px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            background: #111827;
+            color: white;
+        }
+
+        .brand {
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-actions a {
+            text-decoration: none;
+        }
+
+        .nav-button,
+        .logout-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            height: 34px;
+
+            padding: 0 13px;
+
+            border-radius: 7px;
+
+            font-size: 12px;
+            font-weight: 600;
+
+            transition: 0.2s ease;
+        }
+
+        .nav-button {
+            background: #374151;
+            color: white;
+        }
+
+        .nav-button:hover {
+            background: #4b5563;
+        }
+
+        .logout-button {
+            border: none;
+
+            cursor: pointer;
+
+            background: #dc2626;
+            color: white;
+        }
+
+        .logout-button:hover {
+            background: #b91c1c;
+        }
+
+
+        /* =====================================================
+           MAIN CONTAINER
+        ===================================================== */
+
+        .seller-container {
+            width: 100%;
+            max-width: none;
+
+            margin: 0;
+            padding: 0 28px 35px;
+        }
+
+
+        /* =====================================================
+           SELLER HERO
+        ===================================================== */
+
+        .hero {
+            width: 100%;
+
+            margin: 24px 0 20px;
+
+            padding: 30px 30px;
+
+            border-radius: 15px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #1e2a68,
+                    #4338ca
+                );
+
+            color: white;
+
+            box-shadow:
+                0 7px 22px
+                rgba(0, 0, 0, 0.08);
+
+            display: block !important;
+        }
+
+        .hero-label {
+            display: block !important;
+
+            width: 100%;
+
+            margin: 0 0 12px;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            letter-spacing: 1.2px;
+
+            color: #dbeafe;
+        }
+
+        .hero h1 {
+            display: block !important;
+
+            width: 100%;
+
+            margin: 0 0 10px;
+
+            font-size: 32px;
+
+            line-height: 1.2;
+
+            color: white;
+        }
+
+        .hero p {
+            display: block !important;
+
+            width: 100%;
+
+            margin: 0;
+
+            color: #e0e7ff;
+
+            font-size: 13px;
+
+            line-height: 1.5;
+        }
+
+
+        /* =====================================================
+           WHITE PANELS
+        ===================================================== */
+
+        .panel {
+            width: 100%;
+
+            background: white;
+
+            border-radius: 13px;
+
+            padding: 20px;
+
+            margin-bottom: 18px;
+
+            border: 1px solid #e5e7eb;
+
+            box-shadow:
+                0 3px 12px
+                rgba(0, 0, 0, 0.05);
+        }
+
+        .panel-header {
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 12px;
+
+            margin-bottom: 17px;
+        }
+
+        .panel-header h2 {
+            margin: 0;
+
+            font-size: 20px;
+
+            color: #111827;
+        }
+
+        .edit-badge {
+            display: none;
+
+            padding: 5px 10px;
+
+            border-radius: 999px;
+
+            background: #fff7ed;
+
+            color: #c2410c;
+
+            font-size: 11px;
+
+            font-weight: 700;
+        }
+
+        .edit-badge.visible {
+            display: inline-block;
+        }
+
+
+        /* =====================================================
+           FORM
+        ===================================================== */
+
+        .form-grid {
+            width: 100%;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 13px 16px;
+        }
+
+        .form-group {
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 5px;
+
+            min-width: 0;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 12px;
+
+            font-weight: 700;
+
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+
+            border: 1px solid #d1d5db;
+
+            border-radius: 8px;
+
+            padding: 9px 11px;
+
+            font-size: 13px;
+
+            outline: none;
+
+            background: white;
+
+            color: #111827;
+
+            font-family: inherit;
+        }
+
+        .form-group input {
+            height: 38px;
+        }
+
+        .form-group textarea {
+            min-height: 72px;
+
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #2563eb;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(37, 99, 235, 0.08);
+        }
+
+        .readonly-input {
+            background: #f3f4f6 !important;
+
+            color: #6b7280;
+
+            cursor: not-allowed;
+        }
+
+        .help-text {
+            font-size: 10px;
+
+            line-height: 1.4;
+
+            color: #6b7280;
+        }
+
+
+        /* =====================================================
+           IMAGE PREVIEW
+        ===================================================== */
+
+        .image-preview-container {
+            margin-top: 6px;
+
+            display: none;
+        }
+
+        .image-preview-container.visible {
+            display: block;
+        }
+
+        .image-preview-label {
+            display: block;
+
+            margin-bottom: 6px;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            color: #4b5563;
+        }
+
+        .image-preview {
+            width: 150px;
+
+            height: 90px;
+
+            object-fit: cover;
+
+            border-radius: 8px;
+
+            border: 1px solid #e5e7eb;
+
+            background: #f3f4f6;
+        }
+
+
+        /* =====================================================
+           FORM ACTIONS
+        ===================================================== */
+
+        .form-actions {
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            margin-top: 17px;
+
+            flex-wrap: wrap;
+        }
+
+        .primary-button,
+        .secondary-button,
+        .danger-button {
+            border: none;
+
+            border-radius: 7px;
+
+            padding: 9px 14px;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: 0.2s ease;
+        }
+
+        .primary-button {
+            background: #2563eb;
+
+            color: white;
+        }
+
+        .primary-button:hover {
+            background: #1d4ed8;
+        }
+
+        .secondary-button {
+            background: #111827;
+
+            color: white;
+        }
+
+        .secondary-button:hover {
+            background: #1f2937;
+        }
+
+        .danger-button {
+            background: #fee2e2;
+
+            color: #b91c1c;
+        }
+
+        .danger-button:hover {
+            background: #fecaca;
+        }
+
+        .primary-button:disabled,
+        .secondary-button:disabled,
+        .danger-button:disabled {
+            opacity: 0.6;
+
+            cursor: not-allowed;
+        }
+
+
+        /* =====================================================
+           MESSAGE
+        ===================================================== */
+
+        .message {
+            min-height: 18px;
+
+            margin: 10px 0 0;
+
+            font-size: 12px;
+
+            font-weight: 600;
+        }
+
+
+        /* =====================================================
+           PRODUCTS TOOLBAR
+        ===================================================== */
+
+        .products-toolbar {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 12px;
+
+            margin-bottom: 14px;
+        }
+
+        .products-toolbar h2 {
+            margin: 0;
+
+            font-size: 20px;
+        }
+
+
+        /* =====================================================
+           PRODUCT GRID
+        ===================================================== */
+
+        .product-list {
+            width: 100%;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
+            gap: 14px;
+        }
+
+
+        /* =====================================================
+           PRODUCT CARD
+        ===================================================== */
+
+        .seller-product {
+            min-width: 0;
+
+            display: flex;
+
+            flex-direction: column;
+
+            width: 100%;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 11px;
+
+            overflow: hidden;
+
+            background: white;
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .seller-product:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 7px 18px
+                rgba(0, 0, 0, 0.08);
+        }
+
+
+        /* =====================================================
+           PRODUCT IMAGE
+        ===================================================== */
+
+        .product-image {
+            width: 100%;
+
+            height: 150px;
+
+            object-fit: cover;
+
+            display: block;
+
+            background: #f3f4f6;
+        }
+
+
+        /* =====================================================
+           PRODUCT CONTENT
+        ===================================================== */
+
+        .product-content {
+            min-width: 0;
+
+            padding: 11px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            flex: 1;
+        }
+
+        .product-id {
+            display: inline-block;
+
+            width: fit-content;
+
+            max-width: 100%;
+
+            margin-bottom: 5px;
+
+            padding: 3px 6px;
+
+            border-radius: 5px;
+
+            background: #eff6ff;
+
+            color: #1d4ed8;
+
+            font-size: 9px;
+
+            font-weight: 800;
+        }
+
+        .product-content h3 {
+            margin: 0 0 5px;
+
+            font-size: 14px;
+
+            line-height: 1.3;
+
+            overflow-wrap: anywhere;
+        }
+
+        .product-description {
+            margin: 0 0 9px;
+
+            color: #6b7280;
+
+            font-size: 11px;
+
+            line-height: 1.4;
+
+            min-height: 31px;
+
+            overflow-wrap: anywhere;
+        }
+
+
+        /* =====================================================
+           PRICE + STOCK
+        ===================================================== */
+
+        .product-details {
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 5px;
+
+            margin-top: auto;
+
+            margin-bottom: 9px;
+        }
+
+        .detail-box {
+            min-width: 0;
+
+            background: #f9fafb;
+
+            border-radius: 6px;
+
+            padding: 6px;
+        }
+
+        .detail-label {
+            display: block;
+
+            color: #6b7280;
+
+            font-size: 9px;
+
+            margin-bottom: 2px;
+        }
+
+        .detail-value {
+            display: block;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            overflow-wrap: anywhere;
+        }
+
+
+        /* =====================================================
+           PRODUCT ACTIONS
+        ===================================================== */
+
+        .product-actions {
+            display: flex;
+
+            gap: 5px;
+        }
+
+        .product-actions button {
+            flex: 1;
+
+            min-width: 0;
+
+            padding: 7px 4px;
+
+            border-radius: 6px;
+
+            font-size: 10px;
+        }
+
+
+        /* =====================================================
+           LOADING / EMPTY
+        ===================================================== */
+
+        .loading,
+        .empty-state {
+            grid-column: 1 / -1;
+        }
+
+        .empty-state {
+            text-align: center;
+
+            padding: 35px 20px;
+
+            color: #6b7280;
+
+            border:
+                2px dashed #e5e7eb;
+
+            border-radius: 12px;
+        }
+
+        .loading {
+            text-align: center;
+
+            color: #6b7280;
+
+            padding: 20px;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 1100px) {
+
+            .product-list {
+                grid-template-columns:
+                    repeat(3, minmax(0, 1fr));
+            }
+        }
+
+
+        @media (max-width: 800px) {
+
+            .seller-header {
+                padding: 0 18px;
+            }
+
+            .seller-container {
+                padding: 0 18px 30px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full {
+                grid-column: auto;
+            }
+
+            .hero {
+                padding: 26px 24px;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            .product-list {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+        }
+
+
+        @media (max-width: 600px) {
+
+            .seller-container {
+                padding: 0 12px 25px;
+            }
+
+            .seller-header {
+                padding: 0 12px;
+            }
+
+            .brand {
+                font-size: 20px;
+            }
+
+            .nav-button,
+            .logout-button {
+                height: 32px;
+
+                padding: 0 10px;
+
+                font-size: 11px;
+            }
+
+            .hero {
+                margin-top: 14px;
+
+                padding: 24px 19px;
+
+                border-radius: 12px;
+            }
+
+            .hero h1 {
+                font-size: 25px;
+            }
+
+            .hero p {
+                font-size: 12px;
+            }
+
+            .panel {
+                padding: 16px;
+
+                border-radius: 11px;
+            }
+
+            .panel-header h2,
+            .products-toolbar h2 {
+                font-size: 18px;
+            }
+
+            .product-list {
+                grid-template-columns: 1fr;
+            }
+
+            .product-image {
+                height: 180px;
+            }
+
+            .form-actions {
+                width: 100%;
+            }
+
+            .form-actions button {
+                flex: 1;
+            }
+        }
+
+
+        @media (max-width: 420px) {
+
+            .header-actions {
+                gap: 4px;
+            }
+
+            .nav-button {
+                font-size: 0;
+            }
+
+            .nav-button::before {
+                content: "← Marketplace";
+
+                font-size: 11px;
+            }
+
+            .hero h1 {
+                font-size: 23px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .form-actions button {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+<div class="seller-page">
+
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header class="seller-header">
+
+        <div class="brand">
+            KaniMart
+        </div>
+
+
+        <div class="header-actions">
+
+            <a
+                href="index.html"
+                class="nav-button"
+            >
+                ← Marketplace
+            </a>
+
+
+            <button
+                id="logoutButton"
+                class="logout-button"
+                type="button"
+            >
+                Logout
+            </button>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="seller-container">
+
+
+        <!-- =================================================
+             HERO
+        ================================================== -->
+
+        <section class="hero">
+
+            <div class="hero-label">
+                KANIMART SELLER CENTER
+            </div>
+
+
+            <h1>
+                Manage your products.
+            </h1>
+
+
+            <p>
+                Create, edit and manage your KaniMart products
+                from one place.
+            </p>
+
+        </section>
+
+
+
+        <!-- =================================================
+             ADD / EDIT PRODUCT
+        ================================================== -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <h2 id="formTitle">
+                    Add New Product
+                </h2>
+
+
+                <span
+                    id="editBadge"
+                    class="edit-badge"
+                >
+                    Editing Product
+                </span>
+
+            </div>
+
+
+            <form id="productForm">
+
+                <div class="form-grid">
+
+
+                    <!-- PRODUCT ID -->
+
+                    <div class="form-group">
+
+                        <label for="productId">
+                            Product ID
+                        </label>
+
+                        <input
+                            type="text"
+                            id="productId"
+                            class="readonly-input"
+                            placeholder="Generated automatically"
+                            readonly
+                        >
+
+                        <span class="help-text">
+                            Product ID is generated automatically
+                            and cannot be changed.
+                        </span>
+
+                    </div>
+
+
+                    <!-- PRODUCT NAME -->
+
+                    <div class="form-group">
+
+                        <label for="productName">
+                            Product Name *
+                        </label>
+
+                        <input
+                            type="text"
+                            id="productName"
+                            placeholder="Enter product name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- IMAGE -->
+
+                    <div class="form-group full">
+
+                        <label for="productImage">
+                            Product Image URL
+                        </label>
+
+                        <input
+                            type="url"
+                            id="productImage"
+                            placeholder="https://example.com/product-image.jpg"
+                        >
+
+                        <span class="help-text">
+                            Paste a direct image URL.
+                            Leave empty if you do not have an image.
+                        </span>
+
+
+                        <div
+                            id="imagePreviewContainer"
+                            class="image-preview-container"
+                        >
+
+                            <span class="image-preview-label">
+                                Image Preview
+                            </span>
+
+                            <img
+                                id="imagePreview"
+                                class="image-preview"
+                                alt="Product preview"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DESCRIPTION -->
+
+                    <div class="form-group full">
+
+                        <label for="productDescription">
+                            Description *
+                        </label>
+
+                        <textarea
+                            id="productDescription"
+                            rows="3"
+                            placeholder="Enter product description"
+                            required
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- PRICE -->
+
+                    <div class="form-group">
+
+                        <label for="productPrice">
+                            Price (₹) *
+                        </label>
+
+                        <input
+                            type="number"
+                            id="productPrice"
+                            min="0"
+                            step="0.01"
+                            placeholder="0.00"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- STOCK -->
+
+                    <div class="form-group">
+
+                        <label for="productStock">
+                            Stock Quantity *
+                        </label>
+
+                        <input
+                            type="number"
+                            id="productStock"
+                            min="0"
+                            step="1"
+                            placeholder="0"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- CATEGORY -->
+
+                    <div class="form-group full">
+
+                        <label for="productCategory">
+                            Category *
+                        </label>
+
+                        <input
+                            type="text"
+                            id="productCategory"
+                            placeholder="e.g. Electronics"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- FORM ACTIONS -->
+
+                <div class="form-actions">
+
+                    <button
+                        type="submit"
+                        id="productSubmitButton"
+                        class="primary-button"
+                    >
+                        Create Product
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="cancelEditButton"
+                        class="secondary-button"
+                        hidden
+                    >
+                        Cancel Edit
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            <!-- MESSAGE -->
+
+            <div
+                id="sellerMessage"
+                class="message"
+                aria-live="polite"
+            ></div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             MY PRODUCTS
+        ================================================== -->
+
+        <section class="panel">
+
+            <div class="products-toolbar">
+
+                <h2>
+                    My Products
+                </h2>
+
+
+                <button
+                    type="button"
+                    id="refreshSellerProducts"
+                    class="secondary-button"
+                >
+                    Refresh
+                </button>
+
+            </div>
+
+
+            <div
+                id="sellerProducts"
+                class="product-list"
+            >
+
+                <div class="loading">
+                    Loading your products...
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- =====================================================
+     JAVASCRIPT
+====================================================== -->
+
+<script src="seller.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>KaniMart - Order History</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 18px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 25px;
+        }
+
+        nav {
+            display: flex;
+            gap: 22px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        .orders-page {
+            width: 100%;
+            max-width: none;
+            margin: 0;
+            padding: 0 28px 35px;
+        }
+
+        .orders-heading {
+            margin-bottom: 28px;
+        }
+
+        .orders-heading h2 {
+            margin: 0 0 8px;
+            font-size: 30px;
+        }
+
+        .orders-heading p {
+            margin: 0;
+            color: #6b7280;
+        }
+
+        .orders-list {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .order-card {
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+        }
+
+        .order-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .order-id {
+            margin: 0;
+            font-size: 19px;
+            color: #111827;
+        }
+
+        .order-date {
+            margin: 6px 0 0;
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 7px 13px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .status-completed,
+        .status-delivered {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-processing {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .status-cancelled {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .order-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 18px;
+        }
+
+        .order-total-label {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .order-total {
+            margin-top: 4px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        .view-order-button {
+            padding: 10px 18px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: white;
+            color: #111827;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .view-order-button:hover {
+            background: #f3f4f6;
+        }
+
+        .empty-orders {
+            background: white;
+            border-radius: 14px;
+            padding: 65px 20px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+        }
+
+        .empty-icon {
+            font-size: 52px;
+            margin-bottom: 15px;
+        }
+
+        .empty-orders h3 {
+            margin: 0 0 8px;
+            font-size: 21px;
+        }
+
+        .empty-orders p {
+            color: #6b7280;
+            margin: 0 0 22px;
+        }
+
+        .shop-button {
+            display: inline-block;
+            padding: 11px 20px;
+            background: #111827;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+
+        .shop-button:hover {
+            background: #374151;
+        }
+
+        .loading {
+            background: white;
+            border-radius: 14px;
+            padding: 50px;
+            text-align: center;
+            color: #6b7280;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+            padding: 16px;
+            border-radius: 9px;
+        }
+
+        .orders-summary {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-box {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+            min-width: 130px;
+        }
+
+        .summary-box span {
+            display: block;
+            color: #6b7280;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .summary-box strong {
+            font-size: 20px;
+        }
+
+        @media (max-width: 650px) {
+
+            header {
+                padding: 16px 20px;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .orders-page {
+                margin-top: 25px;
+            }
+
+            .orders-summary {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .order-top {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .order-bottom {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .view-order-button {
+                width: 100%;
+            }
+
+            nav {
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+
+    <h1>KaniMart</h1>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="cart.html">Cart</a>
+        <a href="orders.html">Orders</a>
+    </nav>
+
+</header>
+
+
+<main class="orders-page">
+
+    <div class="orders-heading">
+
+        <h2>Order History</h2>
+
+        <p>
+            View your previous KaniMart orders and their status.
+        </p>
+
+    </div>
+
+
+    <div id="ordersSummary" class="orders-summary" style="display:none;">
+
+        <div class="summary-box">
+            <span>Total Orders</span>
+            <strong id="totalOrders">0</strong>
+        </div>
+
+        <div class="summary-box">
+            <span>Total Spent</span>
+            <strong>₹<span id="totalSpent">0.00</span></strong>
+        </div>
+
+    </div>
+
+
+    <div id="ordersContainer">
+
+        <div class="loading">
+            Loading your orders...
+        </div>
+
+    </div>
+
+</main>
+
+
+<script>
+
+const API_BASE =
+    "http://127.0.0.1:8080";
+
+
+const token =
+    localStorage.getItem("kanimart_token");
+
+
+const user = JSON.parse(
+    localStorage.getItem("kanimart_user") || "null"
+);
+
+
+/* --------------------------------
+   Authentication
+-------------------------------- */
+
+if (!token || !user) {
+
+    window.location.href =
+        "index.html";
+
+}
+
+
+/* --------------------------------
+   Format Date
+-------------------------------- */
+
+function formatDate(dateValue) {
+
+    if (!dateValue) {
+        return "N/A";
+    }
+
+    const date =
+        new Date(dateValue);
+
+    if (isNaN(date.getTime())) {
+
+        return dateValue;
+
+    }
+
+    return date.toLocaleString(
+        "en-IN",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    );
+
+}
+
+
+/* --------------------------------
+   Status Class
+-------------------------------- */
+
+function getStatusClass(status) {
+
+    const value =
+        String(status || "PENDING")
+            .toLowerCase();
+
+    return `status-${value}`;
+
+}
+
+
+/* --------------------------------
+   Load Orders
+-------------------------------- */
+
+async function loadOrders() {
+
+    const container =
+        document.getElementById(
+            "ordersContainer"
+        );
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE}/api/orders/${user.id}`,
+                {
+                    method: "GET",
+
+                    headers: {
+                        "Authorization":
+                            `Bearer ${token}`,
+
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !result.success
+        ) {
+
+            throw new Error(
+                result.error ||
+                result.message ||
+                "Unable to load orders"
+            );
+
+        }
+
+
+        /* ----------------------------
+           Handle API response
+        ---------------------------- */
+
+        let orders = [];
+
+
+        if (
+            Array.isArray(result.data)
+        ) {
+
+            orders =
+                result.data;
+
+        }
+        else if (
+            result.data &&
+            Array.isArray(result.data.orders)
+        ) {
+
+            orders =
+                result.data.orders;
+
+        }
+
+
+        /* ----------------------------
+           Empty orders
+        ---------------------------- */
+
+        if (orders.length === 0) {
+
+            container.innerHTML = `
+                <div class="empty-orders">
+
+                    <div class="empty-icon">
+                        📦
+                    </div>
+
+                    <h3>
+                        No orders yet
+                    </h3>
+
+                    <p>
+                        You haven't placed any orders.
+                        Start shopping to see your orders here.
+                    </p>
+
+                    <a
+                        href="index.html"
+                        class="shop-button"
+                    >
+                        Start Shopping
+                    </a>
+
+                </div>
+            `;
+
+            return;
+
+        }
+
+
+        /* ----------------------------
+           Calculate summary
+        ---------------------------- */
+
+        let totalSpent = 0;
+
+
+        orders.forEach(order => {
+
+            const amount =
+                Number(
+                    order.total_cents ||
+                    order.total ||
+                    0
+                ) / 100;
+
+            totalSpent += amount;
+
+        });
+
+
+        document.getElementById(
+            "totalOrders"
+        ).textContent =
+            orders.length;
+
+
+        document.getElementById(
+            "totalSpent"
+        ).textContent =
+            totalSpent.toFixed(2);
+
+
+        document.getElementById(
+            "ordersSummary"
+        ).style.display =
+            "flex";
+
+
+        /* ----------------------------
+           Render orders
+        ---------------------------- */
+
+        container.innerHTML = `
+            <div class="orders-list">
+
+                ${
+                    orders.map(order => {
+
+                        const total =
+                            Number(
+                                order.total_cents ||
+                                order.total ||
+                                0
+                            ) / 100;
+
+
+                        const status =
+                            order.status ||
+                            "PENDING";
+
+
+                        return `
+                            <div class="order-card">
+
+                                <div class="order-top">
+
+                                    <div>
+
+                                        <h3 class="order-id">
+                                            Order #${order.id}
+                                        </h3>
+
+                                        <p class="order-date">
+                                            Placed on
+                                            ${formatDate(
+                                                order.created_at
+                                            )}
+                                        </p>
+
+                                    </div>
+
+                                    <span
+                                        class="status-badge
+                                        ${getStatusClass(status)}"
+                                    >
+                                        ${status}
+                                    </span>
+
+                                </div>
+
+
+                                <div class="order-bottom">
+
+                                    <div>
+
+                                        <div class="order-total-label">
+                                            Order Total
+                                        </div>
+
+                                        <div class="order-total">
+                                            ₹${total.toFixed(2)}
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        `;
+
+                    }).join("")
+                }
+
+            </div>
+        `;
+
+
+    }
+    catch (error) {
+
+        console.error(
+            "Order loading error:",
+            error
+        );
+
+
+        container.innerHTML = `
+            <div class="error-message">
+
+                Unable to load orders:
+                ${error.message}
+
+            </div>
+        `;
+
+    }
+
+}
+
+
+/* --------------------------------
+   Start
+-------------------------------- */
+
+loadOrders();
+
+</script>
+
+</body>
+</html>

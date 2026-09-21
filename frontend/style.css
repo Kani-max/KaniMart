@@ -97,7 +97,7 @@ select:focus {
 .cart-button {
     border: 0;
     border-radius: 10px;
-    padding: 11px 18px;
+    padding: 10px 16px;
     font-weight: 700;
 }
 .primary-button {
@@ -363,4 +363,535 @@ select:focus {
 .chat-status {
     min-height: 20px;
     margin-top: 8px;
+}
+#cartButton,
+#checkoutButton,
+#orderHistoryButton {
+    background: #111827;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#cartButton:hover,
+#checkoutButton:hover,
+#orderHistoryButton:hover {
+    background: #1f2937;
+}
+/* =========================================================
+   KANIMART - GLOBAL WEBSITE LAYOUT
+   ========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    width: 100%;
+    min-height: 100vh;
+    background: #f4f6fa;
+    color: #111827;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.topbar {
+    width: 100%;
+    min-height: 56px;
+    padding: 0 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: #111827;
+    color: white;
+}
+
+.brand {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.brand h1 {
+    margin: 0;
+    font-size: 22px;
+    color: white;
+}
+
+.brand span {
+    font-size: 12px;
+    color: #93c5fd;
+}
+
+.user-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+/* =========================================================
+   GLOBAL PAGE CONTAINER
+   ========================================================= */
+
+.page {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0 28px 40px;
+}
+
+
+/* =========================================================
+   COMMON CONTENT CONTAINER
+   ========================================================= */
+
+.container,
+.main-container,
+.content,
+.page-container,
+.marketplace,
+.checkout-container,
+.cart-container,
+.orders-container,
+.seller-container {
+    width: 100%;
+    max-width: none;
+}
+
+
+/* =========================================================
+   COMMON SECTION
+   ========================================================= */
+
+.section {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+
+/* =========================================================
+   COMMON WHITE CARD
+   ========================================================= */
+
+.card {
+    width: 100%;
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+}
+
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.hero {
+    width: 100%;
+    margin: 24px 0 20px;
+    padding: 32px;
+
+    border-radius: 16px;
+
+    background: linear-gradient(
+        135deg,
+        #1e2a68,
+        #4338ca
+    );
+
+    color: white;
+}
+
+.hero h1,
+.hero h2 {
+    margin: 0 0 10px;
+    color: white;
+}
+
+.hero p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   FORMS
+   ========================================================= */
+
+form {
+    width: 100%;
+}
+
+.form-group {
+    margin-bottom: 14px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    padding: 10px 12px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+
+    background: white;
+    color: #111827;
+
+    font-size: 13px;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+
+/* =========================================================
+   TWO COLUMN FORM
+   ========================================================= */
+
+.form-grid {
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 14px 16px;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+button {
+    font-family: inherit;
+}
+
+.primary-button,
+.secondary-button,
+.cart-button {
+    border: none;
+    border-radius: 8px;
+
+    padding: 9px 14px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.primary-button {
+    background: #2563eb;
+    color: white;
+}
+
+.primary-button:hover {
+    background: #1d4ed8;
+}
+
+.secondary-button {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+.secondary-button:hover {
+    background: #d1d5db;
+}
+
+.cart-button {
+    background: #111827;
+    color: white;
+}
+
+.cart-button:hover {
+    background: #1f2937;
+}
+
+
+/* =========================================================
+   PRODUCT GRID
+   ========================================================= */
+
+.product-grid,
+.product-list {
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    gap: 16px;
+}
+
+
+/* =========================================================
+   PRODUCT CARD
+   ========================================================= */
+
+.product-card,
+.seller-product {
+    min-width: 0;
+
+    background: white;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    overflow: hidden;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.product-card:hover,
+.seller-product:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================================
+   PRODUCT IMAGE
+   ========================================================= */
+
+.product-card img,
+.product-image {
+    width: 100%;
+    height: 180px;
+
+    display: block;
+
+    object-fit: cover;
+    background: #f3f4f6;
+}
+
+
+/* =========================================================
+   PRODUCT CONTENT
+   ========================================================= */
+
+.product-content {
+    padding: 13px;
+}
+
+.product-content h3 {
+    margin: 0 0 7px;
+
+    font-size: 15px;
+    line-height: 1.35;
+}
+
+.product-content p {
+    margin: 0 0 8px;
+
+    font-size: 12px;
+    line-height: 1.45;
+
+    color: #6b7280;
+}
+
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.toolbar {
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 180px auto;
+
+    gap: 10px;
+
+    margin-bottom: 20px;
+}
+
+
+/* =========================================================
+   SECTION HEADING
+   ========================================================= */
+
+.section-heading {
+    width: 100%;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 14px;
+}
+
+.section-heading h2 {
+    margin: 0 0 4px;
+}
+
+.section-heading p {
+    margin: 0;
+
+    font-size: 12px;
+    color: #6b7280;
+}
+
+
+/* =========================================================
+   TABLES
+   ========================================================= */
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+
+    background: white;
+
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 11px 12px;
+
+    text-align: left;
+
+    border-bottom: 1px solid #e5e7eb;
+
+    font-size: 13px;
+}
+
+th {
+    background: #f9fafb;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1100px) {
+
+    .product-grid,
+    .product-list {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+
+@media (max-width: 800px) {
+
+    .page {
+        padding: 0 16px 30px;
+    }
+
+    .topbar {
+        padding: 0 16px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .full-width {
+        grid-column: auto;
+    }
+
+    .toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .product-grid,
+    .product-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .hero {
+        padding: 26px 22px;
+    }
+}
+
+
+@media (max-width: 520px) {
+
+    .page {
+        padding: 0 12px 24px;
+    }
+
+    .topbar {
+        padding: 0 12px;
+    }
+
+    .product-grid,
+    .product-list {
+        grid-template-columns: 1fr;
+    }
+
+    .hero {
+        margin-top: 14px;
+        padding: 24px 18px;
+        border-radius: 12px;
+    }
+
+    .product-card img,
+    .product-image {
+        height: 210px;
+    }
 }

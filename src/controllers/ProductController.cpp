@@ -300,6 +300,7 @@ void ProductController::createProduct(
     }
 }
 
+
 void ProductController::getProduct(
     const drogon::HttpRequestPtr&,
     std::function<void(const drogon::HttpResponsePtr&)>&& callback,
@@ -934,7 +935,44 @@ void ProductController::deleteProduct(
     }
 }
 
+
+void ProductController::options(
+    const drogon::HttpRequestPtr& request,
+    std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+{
+    auto response =
+        drogon::HttpResponse::newHttpResponse();
+
+    response->setStatusCode(
+        drogon::k200OK);
+
+    response->addHeader(
+        "Access-Control-Allow-Origin",
+        "http://127.0.0.1:5500");
+
+    response->addHeader(
+        "Access-Control-Allow-Methods",
+        "GET, POST, PUT, DELETE, OPTIONS");
+
+    response->addHeader(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Authorization");
+
+    response->addHeader(
+        "Access-Control-Allow-Credentials",
+        "true");
+
+    callback(response);
+}
+
+
+void ProductController::optionsById(
+    const drogon::HttpRequestPtr& request,
+    std::function<void(const drogon::HttpResponsePtr&)>&& callback,
+    int productId)
+{
+    options(request, std::move(callback));
+}
+
+
 } // namespace kani::kanimart
-
-
-

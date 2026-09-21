@@ -1,21 +1,59 @@
 const API_BASE = "http://127.0.0.1:8080";
 
-const authSection = document.getElementById("authSection");
-const marketplaceSection = document.getElementById("marketplaceSection");
-const loginForm = document.getElementById("loginForm");
-const message = document.getElementById("message");
-const welcomeUser = document.getElementById("welcomeUser");
-const logoutButton = document.getElementById("logoutButton");
-const searchInput = document.getElementById("searchInput");
-const categoryFilter = document.getElementById("categoryFilter");
-const refreshProducts = document.getElementById("refreshProducts");
-const productGrid = document.getElementById("productGrid");
-const productCount = document.getElementById("productCount");
-const productMessage = document.getElementById("productMessage");
-const cartButton = document.getElementById("cartButton");
-const cartCount = document.getElementById("cartCount");
-const checkoutButton = document.getElementById("checkoutButton");
-const orderHistoryButton = document.getElementById("orderHistoryButton");
+const authSection =
+    document.getElementById("authSection");
+
+const marketplaceSection =
+    document.getElementById("marketplaceSection");
+
+const loginForm =
+    document.getElementById("loginForm");
+
+const registerForm =
+    document.getElementById("registerForm");
+
+const message =
+    document.getElementById("message");
+
+const welcomeUser =
+    document.getElementById("welcomeUser");
+
+const logoutButton =
+    document.getElementById("logoutButton");
+
+const searchInput =
+    document.getElementById("searchInput");
+
+const categoryFilter =
+    document.getElementById("categoryFilter");
+
+const refreshProducts =
+    document.getElementById("refreshProducts");
+
+const productGrid =
+    document.getElementById("productGrid");
+
+const productCount =
+    document.getElementById("productCount");
+
+const productMessage =
+    document.getElementById("productMessage");
+
+const cartButton =
+    document.getElementById("cartButton");
+
+const cartCount =
+    document.getElementById("cartCount");
+
+const checkoutButton =
+    document.getElementById("checkoutButton");
+
+const orderHistoryButton =
+    document.getElementById("orderHistoryButton");
+
+const sellerManagement =
+    document.getElementById("sellerManagement");
+
 
 let products = [];
 
@@ -25,572 +63,1348 @@ let cart = {
 };
 
 
+/* =========================================================
+   AUTH
+   ========================================================= */
+
 function getToken() {
-    return localStorage.getItem("kanimart_token");
+
+    return localStorage.getItem(
+        "kanimart_token"
+    );
 }
 
 
 function getUser() {
-    const value = localStorage.getItem("kanimart_user");
+
+    const value =
+        localStorage.getItem(
+            "kanimart_user"
+        );
 
     if (!value) {
         return null;
     }
 
     try {
+
         return JSON.parse(value);
-    } catch {
+
+    } catch (error) {
+
+        console.error(
+            "Invalid saved user:",
+            error
+        );
+
         return null;
     }
 }
 
 
 function authHeaders() {
+
+    const token =
+        getToken();
+
     return {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${getToken()}`
+        "Content-Type":
+            "application/json",
+
+        "Authorization":
+            `Bearer ${token}`
     };
 }
 
 
-function updateCartCount() {
-    const count = cart.items.reduce(
-        (total, item) => total + Number(item.quantity || 0),
-        0
-    );
+/* =========================================================
+   SHOW LOGIN
+   ========================================================= */
 
-    cartCount.textContent = count;
+function showLogin() {
+
+    if (authSection) {
+
+        authSection.classList.remove(
+            "hidden"
+        );
+    }
+
+
+    if (marketplaceSection) {
+
+        marketplaceSection.classList.add(
+            "hidden"
+        );
+    }
+
+
+    if (welcomeUser) {
+
+        welcomeUser.textContent = "";
+    }
+
+
+    if (sellerManagement) {
+
+        sellerManagement.hidden = true;
+    }
 }
 
 
-function showMarketplace() {
-    const user = getUser();
+/* =========================================================
+   SHOW MARKETPLACE
+   ========================================================= */
 
-    if (!user || !getToken()) {
-        authSection.classList.remove("hidden");
-        marketplaceSection.classList.add("hidden");
-        welcomeUser.textContent = "";
+function showMarketplace() {
+
+    const user =
+        getUser();
+
+    const token =
+        getToken();
+
+
+    /*
+     * No valid saved session.
+     */
+
+    if (!user || !token) {
+
+        showLogin();
+
         return;
     }
 
-    authSection.classList.add("hidden");
-    marketplaceSection.classList.remove("hidden");
 
-    welcomeUser.textContent =
-        `${user.name} (${user.role})`;
+    /*
+     * Hide authentication.
+     */
+
+    if (authSection) {
+
+        authSection.classList.add(
+            "hidden"
+        );
+    }
+
+
+    /*
+     * Show marketplace.
+     */
+
+    if (marketplaceSection) {
+
+        marketplaceSection.classList.remove(
+            "hidden"
+        );
+    }
+
+
+    /*
+     * Welcome message.
+     */
+
+    if (welcomeUser) {
+
+        welcomeUser.textContent =
+            `${user.name} (${user.role})`;
+    }
+
+
+    /*
+     * Seller Management:
+     *
+     * SELLER -> visible
+     * ADMIN  -> visible
+     * BUYER  -> hidden
+     */
+
+    if (sellerManagement) {
+
+        if (
+            user.role === "SELLER" ||
+            user.role === "ADMIN"
+        ) {
+
+            sellerManagement.hidden = false;
+
+        } else {
+
+            sellerManagement.hidden = true;
+        }
+    }
+
 
     updateCartCount();
 
     loadProducts();
+
     loadCart();
 }
 
 
-async function loadProducts() {
-    productMessage.textContent = "Loading products...";
-    productGrid.innerHTML = "";
+/* =========================================================
+   REGISTRATION
+   ========================================================= */
 
-    try {
-        const response = await fetch(
-            `${API_BASE}/api/products`
-        );
+if (registerForm) {
 
-        const result = await response.json();
+    registerForm.addEventListener(
+        "submit",
+        async event => {
 
-        if (!response.ok) {
-            throw new Error(
-                result.error || "Unable to load products."
-            );
+            event.preventDefault();
+
+
+            const registerName =
+                document.getElementById(
+                    "registerName"
+                );
+
+            const registerEmail =
+                document.getElementById(
+                    "registerEmail"
+                );
+
+            const registerPassword =
+                document.getElementById(
+                    "registerPassword"
+                );
+
+            const registerRole =
+                document.getElementById(
+                    "registerRole"
+                );
+
+
+            /*
+             * Safety check.
+             */
+
+            if (
+                !registerName ||
+                !registerEmail ||
+                !registerPassword ||
+                !registerRole
+            ) {
+
+                console.error(
+                    "Registration form elements are missing."
+                );
+
+                return;
+            }
+
+
+            const name =
+                registerName.value.trim();
+
+            const email =
+                registerEmail.value.trim();
+
+            const password =
+                registerPassword.value;
+
+            const role =
+                registerRole.value;
+
+
+            /*
+             * Client-side validation.
+             */
+
+            if (!name) {
+
+                message.textContent =
+                    "Please enter your name.";
+
+                return;
+            }
+
+
+            if (!email) {
+
+                message.textContent =
+                    "Please enter your email.";
+
+                return;
+            }
+
+
+            if (password.length < 8) {
+
+                message.textContent =
+                    "Password must be at least 8 characters.";
+
+                return;
+            }
+
+
+            /*
+             * Only Buyer and Seller are
+             * allowed through public registration.
+             */
+
+            if (
+                role !== "BUYER" &&
+                role !== "SELLER"
+            ) {
+
+                message.textContent =
+                    "Please select Buyer or Seller.";
+
+                return;
+            }
+
+
+            message.textContent =
+                "Creating account...";
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_BASE}/api/auth/register`,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                name,
+                                email,
+                                password,
+                                role
+                            })
+                        }
+                    );
+
+
+                const result =
+                    await response.json();
+
+
+                /*
+                 * Backend returned an error.
+                 */
+
+                if (
+                    !response.ok ||
+                    !result.success
+                ) {
+
+                    throw new Error(
+                        result.error ||
+                        result.message ||
+                        "Registration failed."
+                    );
+                }
+
+
+                /*
+                 * Successful registration.
+                 */
+
+                message.textContent =
+                    `Account created successfully as ${role}. You can now login.`;
+
+
+                /*
+                 * Clear registration form.
+                 */
+
+                registerForm.reset();
+
+
+                /*
+                 * Put the email into login form
+                 * to make login easier.
+                 */
+
+                const loginEmail =
+                    document.getElementById(
+                        "email"
+                    );
+
+                if (loginEmail) {
+
+                    loginEmail.value =
+                        email;
+                }
+
+
+                /*
+                 * Put focus on password field.
+                 */
+
+                const loginPassword =
+                    document.getElementById(
+                        "password"
+                    );
+
+                if (loginPassword) {
+
+                    loginPassword.focus();
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Registration error:",
+                    error
+                );
+
+
+                message.textContent =
+                    error.message ||
+                    "Unable to create account.";
+            }
         }
-
-        products = Array.isArray(result)
-            ? result
-            : (result.data || []);
-
-        populateCategories();
-        renderProducts();
-
-    } catch (error) {
-        console.error(error);
-
-        productCount.textContent = "0 products";
-
-        productMessage.textContent =
-            "Unable to load products from KaniMart.";
-    }
+    );
 }
 
 
-async function loadCart() {
-    const user = getUser();
+/* =========================================================
+   CART COUNT
+   ========================================================= */
 
-    if (!user) {
+function updateCartCount() {
+
+    if (!cartCount) {
         return;
     }
 
-    try {
-        const response = await fetch(
-            `${API_BASE}/api/cart/${user.id}`,
-            {
-                method: "GET",
-                headers: authHeaders()
-            }
+
+    const items =
+        Array.isArray(cart.items)
+            ? cart.items
+            : [];
+
+
+    const count =
+        items.reduce(
+            (total, item) =>
+                total +
+                Number(
+                    item.quantity || 0
+                ),
+            0
         );
 
-        const result = await response.json();
 
-        if (!response.ok || !result.success) {
+    cartCount.textContent =
+        count;
+}
+
+
+/* =========================================================
+   PRODUCTS
+   ========================================================= */
+
+async function loadProducts() {
+
+    if (!productGrid) {
+        return;
+    }
+
+
+    if (productMessage) {
+
+        productMessage.textContent =
+            "Loading products...";
+    }
+
+
+    productGrid.innerHTML = "";
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE}/api/products`
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (!response.ok) {
+
             throw new Error(
-                result.error || "Unable to load cart."
+                result.error ||
+                result.message ||
+                "Unable to load products."
             );
         }
 
-        cart = result.data || {
-            items: [],
-            total_cents: 0
-        };
 
-        updateCartCount();
+        products =
+            Array.isArray(result)
+                ? result
+                : Array.isArray(result.data)
+                    ? result.data
+                    : [];
+
+
+        populateCategories();
+
+        renderProducts();
 
     } catch (error) {
-        console.error(error);
 
-        cart = {
-            items: [],
-            total_cents: 0
-        };
+        console.error(
+            "Product loading error:",
+            error
+        );
 
-        updateCartCount();
+
+        if (productCount) {
+
+            productCount.textContent =
+                "0 products";
+        }
+
+
+        if (productMessage) {
+
+            productMessage.textContent =
+                "Unable to load products from KaniMart.";
+        }
     }
 }
 
 
+/* =========================================================
+   PRODUCT CATEGORIES
+   ========================================================= */
+
 function populateCategories() {
-    const currentCategory = categoryFilter.value;
+
+    if (!categoryFilter) {
+        return;
+    }
+
+
+    const currentCategory =
+        categoryFilter.value;
+
 
     const categories = [
         ...new Set(
             products
-                .map(product => product.category)
+                .map(
+                    product =>
+                        product.category
+                )
                 .filter(Boolean)
         )
     ].sort();
 
+
     categoryFilter.innerHTML =
         '<option value="">All categories</option>';
 
-    categories.forEach(category => {
-        const option = document.createElement("option");
 
-        option.value = category;
-        option.textContent = category;
+    categories.forEach(
+        category => {
 
-        categoryFilter.appendChild(option);
-    });
+            const option =
+                document.createElement(
+                    "option"
+                );
 
-    categoryFilter.value = currentCategory;
+
+            option.value =
+                category;
+
+            option.textContent =
+                category;
+
+
+            categoryFilter.appendChild(
+                option
+            );
+        }
+    );
+
+
+    categoryFilter.value =
+        currentCategory;
 }
 
+
+/* =========================================================
+   FILTER PRODUCTS
+   ========================================================= */
 
 function getFilteredProducts() {
-    const search = searchInput.value
-        .trim()
-        .toLowerCase();
 
-    const category = categoryFilter.value;
-
-    return products.filter(product => {
-        const matchesSearch =
-            !search ||
-            String(product.name || "")
+    const search =
+        searchInput
+            ? searchInput.value
+                .trim()
                 .toLowerCase()
-                .includes(search) ||
-            String(product.description || "")
-                .toLowerCase()
-                .includes(search);
+            : "";
 
-        const matchesCategory =
-            !category ||
-            product.category === category;
 
-        return matchesSearch && matchesCategory;
-    });
+    const category =
+        categoryFilter
+            ? categoryFilter.value
+            : "";
+
+
+    return products.filter(
+        product => {
+
+            const matchesSearch =
+                !search ||
+                String(
+                    product.name || ""
+                )
+                    .toLowerCase()
+                    .includes(search) ||
+
+                String(
+                    product.description || ""
+                )
+                    .toLowerCase()
+                    .includes(search);
+
+
+            const matchesCategory =
+                !category ||
+                product.category === category;
+
+
+            return (
+                matchesSearch &&
+                matchesCategory
+            );
+        }
+    );
 }
-async function loadReviews(productId) {
-    const reviewContainer =
-        document.getElementById(`reviews-${productId}`);
 
-    if (!reviewContainer) {
+
+/* =========================================================
+   RENDER PRODUCTS
+   ========================================================= */
+
+function renderProducts() {
+
+    if (!productGrid) {
         return;
     }
 
-    try {
-        const response = await fetch(
-            `${API_BASE}/api/products/${productId}/reviews`
-        );
 
-        const result = await response.json();
+    const filteredProducts =
+        getFilteredProducts();
 
-        if (!response.ok || !result.success) {
-            reviewContainer.innerHTML =
-                "<p>No reviews available.</p>";
-            return;
-        }
 
-        const reviews = result.data?.reviews || [];
+    if (productCount) {
 
-        if (reviews.length === 0) {
-            reviewContainer.innerHTML =
-                "<p>No reviews yet.</p>";
-            return;
-        }
-
-        reviewContainer.innerHTML = reviews
-            .map(review => {
-                const rating =
-                    Number(review.rating || 0);
-
-                const stars =
-                    "★".repeat(rating) +
-                    "☆".repeat(5 - rating);
-
-                return `
-                    <div class="review-item">
-                        <strong>${stars}</strong>
-                        <p>${escapeHtml(
-                            review.comment || ""
-                        )}</p>
-                    </div>
-                `;
-            })
-            .join("");
-
-    } catch (error) {
-        console.error(error);
-
-        reviewContainer.innerHTML =
-            "<p>Unable to load reviews.</p>";
+        productCount.textContent =
+            `${filteredProducts.length} product${
+                filteredProducts.length === 1
+                    ? ""
+                    : "s"
+            }`;
     }
-}
 
-function renderProducts() {
-    const filteredProducts = getFilteredProducts();
 
-    productCount.textContent =
-        `${filteredProducts.length} product${filteredProducts.length === 1 ? "" : "s"}`;
+    if (productMessage) {
 
-    productMessage.textContent = "";
+        productMessage.textContent = "";
+    }
+
 
     if (filteredProducts.length === 0) {
+
         productGrid.innerHTML = `
             <div class="empty-state">
                 <h3>No products found</h3>
-                <p>Try another search or category.</p>
+                <p>
+                    Try another search or category.
+                </p>
             </div>
         `;
 
         return;
     }
 
-    productGrid.innerHTML = filteredProducts
-        .map(product => {
-            const price =
-                Number(product.price_cents || 0) / 100;
 
-            const imageUrl =
-                product.image_url ||
-                "https://via.placeholder.com/600x400?text=KaniMart";
+    productGrid.innerHTML =
+        filteredProducts
+            .map(product => {
 
-            const stock =
-                Number(product.stock_qty || 0);
+                const price =
+                    Number(
+                        product.price_cents || 0
+                    ) / 100;
 
-            return `
-                <article class="product-card">
 
-                    <img
-                        src="${escapeHtml(imageUrl)}"
-                        alt="${escapeHtml(product.name || "Product")}"
-                        onerror="this.src='https://via.placeholder.com/600x400?text=KaniMart'"
-                    >
+                const imageUrl =
+                    product.image_url ||
+                    "https://via.placeholder.com/600x400?text=KaniMart";
 
-                    <div class="product-info">
 
-                        <span class="category">
-                            ${escapeHtml(product.category || "General")}
-                        </span>
+                const stock =
+                    Number(
+                        product.stock_qty || 0
+                    );
 
-                        <h3>
-                            ${escapeHtml(product.name || "Unnamed Product")}
-                        </h3>
 
-                        <p class="description">
-                            ${escapeHtml(
-                                product.description ||
-                                "No description available."
-                            )}
-                        </p>
+                return `
+                    <article class="product-card">
 
-                        <div class="product-bottom">
+                        <img
+                            src="${escapeHtml(imageUrl)}"
+                            alt="${escapeHtml(
+                                product.name ||
+                                "Product"
+                            )}"
+                            onerror="
+                                this.src='https://via.placeholder.com/600x400?text=KaniMart'
+                            "
+                        >
 
-                            <strong>
-                                ₹${price.toLocaleString("en-IN", {
-                                    minimumFractionDigits: 2
-                                })}
-                            </strong>
+                        <div class="product-info">
 
-                            <span class="${stock > 0 ? "stock" : "out-stock"}">
-                                ${
-                                    stock > 0
-                                        ? `${stock} in stock`
-                                        : "Out of stock"
-                                }
+                            <span class="category">
+                                ${escapeHtml(
+                                    product.category ||
+                                    "General"
+                                )}
                             </span>
 
-                        </div>
 
-                        <button
-                            class="primary-button add-cart"
-                            data-product-id="${product.id}"
-                            ${stock <= 0 ? "disabled" : ""}
-                        >
-                            Add to Cart
-                        </button>
+                            <h3>
+                                ${escapeHtml(
+                                    product.name ||
+                                    "Unnamed Product"
+                                )}
+                            </h3>
 
-                        <div class="review-box">
 
-                            <h4>Leave a Review</h4>
+                            <p class="description">
+                                ${escapeHtml(
+                                    product.description ||
+                                    "No description available."
+                                )}
+                            </p>
 
-                            <select id="rating-${product.id}">
-                                <option value="">Rating</option>
-                                <option value="5">★★★★★ — 5</option>
-                                <option value="4">★★★★☆ — 4</option>
-                                <option value="3">★★★☆☆ — 3</option>
-                                <option value="2">★★☆☆☆ — 2</option>
-                                <option value="1">★☆☆☆☆ — 1</option>
-                            </select>
 
-                            <textarea
-                                id="review-${product.id}"
-                                placeholder="Write your review..."
-                                rows="3"
-                            ></textarea>
+                            <div class="product-bottom">
+
+                                <strong>
+                                    ₹${price.toLocaleString(
+                                        "en-IN",
+                                        {
+                                            minimumFractionDigits:
+                                                2
+                                        }
+                                    )}
+                                </strong>
+
+
+                                <span class="${
+                                    stock > 0
+                                        ? "stock"
+                                        : "out-stock"
+                                }">
+
+                                    ${
+                                        stock > 0
+                                            ? `${stock} in stock`
+                                            : "Out of stock"
+                                    }
+
+                                </span>
+
+                            </div>
+
 
                             <button
-                                class="secondary-button submit-review"
+                                class="primary-button add-cart"
                                 data-product-id="${product.id}"
+                                ${stock <= 0
+                                    ? "disabled"
+                                    : ""}
                             >
-                                Submit Review
+                                Add to Cart
                             </button>
+
+
+                            <!-- =====================
+                                 REVIEW
+                                 ===================== -->
+
+                            <div class="review-box">
+
+                                <h4>
+                                    Leave a Review
+                                </h4>
+
+
+                                <select
+                                    id="rating-${product.id}"
+                                >
+
+                                    <option value="">
+                                        Rating
+                                    </option>
+
+                                    <option value="5">
+                                        ★★★★★ — 5
+                                    </option>
+
+                                    <option value="4">
+                                        ★★★★☆ — 4
+                                    </option>
+
+                                    <option value="3">
+                                        ★★★☆☆ — 3
+                                    </option>
+
+                                    <option value="2">
+                                        ★★☆☆☆ — 2
+                                    </option>
+
+                                    <option value="1">
+                                        ★☆☆☆☆ — 1
+                                    </option>
+
+                                </select>
+
+
+                                <textarea
+                                    id="review-${product.id}"
+                                    placeholder="Write your review..."
+                                    rows="3"
+                                ></textarea>
+
+
+                                <button
+                                    class="secondary-button submit-review"
+                                    data-product-id="${product.id}"
+                                >
+                                    Submit Review
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                id="reviews-${product.id}"
+                                class="reviews"
+                            >
+                                Loading reviews...
+                            </div>
 
                         </div>
 
-                    </div>
+                    </article>
+                `;
+            })
+            .join("");
 
-                </article>
-            `;
-        })
-        .join("");
 
-    document.querySelectorAll(".add-cart").forEach(button => {
-        button.addEventListener("click", () => {
-            addToCart(
-                Number(button.dataset.productId)
+    /*
+     * Add-to-cart listeners.
+     */
+
+    document
+        .querySelectorAll(".add-cart")
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        addToCart(
+                            Number(
+                                button.dataset.productId
+                            )
+                        );
+                    }
+                );
+            }
+        );
+
+
+    /*
+     * Review listeners.
+     */
+
+    document
+        .querySelectorAll(".submit-review")
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        submitReview(
+                            Number(
+                                button.dataset.productId
+                            )
+                        );
+                    }
+                );
+            }
+        );
+
+
+    /*
+     * Load reviews for every visible product.
+     */
+
+    filteredProducts.forEach(
+        product => {
+
+            loadReviews(
+                product.id
             );
-        });
-    });
-
-    document.querySelectorAll(".submit-review").forEach(button => {
-        button.addEventListener("click", () => {
-            submitReview(
-                Number(button.dataset.productId)
-            );
-        });
-    });
-    filteredProducts.forEach(product => {
-    loadReviews(product.id);
-    });
+        }
+    );
 }
 
-async function addToCart(productId) {
-    const user = getUser();
+
+/* =========================================================
+   CART
+   ========================================================= */
+
+async function loadCart() {
+
+    const user =
+        getUser();
+
 
     if (!user) {
         return;
     }
 
-    const product = products.find(
-        item => Number(item.id) === productId
-    );
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE}/api/cart/${user.id}`,
+                {
+                    method: "GET",
+                    headers: authHeaders()
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !result.success
+        ) {
+
+            throw new Error(
+                result.error ||
+                "Unable to load cart."
+            );
+        }
+
+
+        if (
+            Array.isArray(
+                result.data
+            )
+        ) {
+
+            cart = {
+                items:
+                    result.data,
+
+                total_cents:
+                    0
+            };
+
+        } else {
+
+            cart =
+                result.data || {
+                    items: [],
+                    total_cents: 0
+                };
+        }
+
+
+        if (
+            !Array.isArray(
+                cart.items
+            )
+        ) {
+
+            cart.items = [];
+        }
+
+
+        updateCartCount();
+
+    } catch (error) {
+
+        console.error(
+            "Cart loading error:",
+            error
+        );
+
+
+        cart = {
+            items: [],
+            total_cents: 0
+        };
+
+
+        updateCartCount();
+    }
+}
+
+
+/* =========================================================
+   ADD TO CART
+   ========================================================= */
+
+async function addToCart(productId) {
+
+    const user =
+        getUser();
+
+
+    if (!user) {
+
+        showLogin();
+
+        return;
+    }
+
+
+    const product =
+        products.find(
+            item =>
+                Number(item.id) ===
+                productId
+        );
+
 
     if (!product) {
         return;
     }
 
-    productMessage.textContent =
-        `Adding ${product.name} to cart...`;
+
+    if (productMessage) {
+
+        productMessage.textContent =
+            `Adding ${product.name} to cart...`;
+    }
+
 
     try {
-        const response = await fetch(
-            `${API_BASE}/api/cart/${user.id}`,
-            {
-                method: "POST",
-                headers: authHeaders(),
-                body: JSON.stringify({
-                    product_id: productId,
-                    quantity: 1
-                })
-            }
-        );
 
-        const result = await response.json();
+        const response =
+            await fetch(
+                `${API_BASE}/api/cart/${user.id}`,
+                {
+                    method: "POST",
 
-        if (!response.ok || !result.success) {
+                    headers:
+                        authHeaders(),
+
+                    body:
+                        JSON.stringify({
+                            product_id:
+                                productId,
+
+                            quantity:
+                                1
+                        })
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !result.success
+        ) {
+
             throw new Error(
                 result.error ||
+                result.message ||
                 "Unable to add product to cart."
             );
         }
 
+
         await loadCart();
 
-        productMessage.textContent =
-            `${product.name} added to cart.`;
+
+        if (productMessage) {
+
+            productMessage.textContent =
+                `${product.name} added to cart.`;
+        }
 
     } catch (error) {
-        console.error(error);
 
-        productMessage.textContent =
-            error.message ||
-            "Unable to add product to cart.";
+        console.error(
+            "Add to cart error:",
+            error
+        );
+
+
+        if (productMessage) {
+
+            productMessage.textContent =
+                error.message ||
+                "Unable to add product to cart.";
+        }
     }
 }
 
 
-function escapeHtml(value) {
-    return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
+/* =========================================================
+   REVIEWS
+   ========================================================= */
+
+async function loadReviews(productId) {
+
+    const reviewContainer =
+        document.getElementById(
+            `reviews-${productId}`
+        );
 
 
-async function loadOrderHistory() {
-    const user = getUser();
-
-    if (!user) {
+    if (!reviewContainer) {
         return;
     }
 
-    productMessage.textContent =
-        "Loading order history...";
 
     try {
-        const response = await fetch(
-            `${API_BASE}/api/orders/${user.id}`,
-            {
-                method: "GET",
-                headers: authHeaders()
-            }
-        );
 
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
-            throw new Error(
-                result.error ||
-                "Unable to load order history."
+        const response =
+            await fetch(
+                `${API_BASE}/api/products/${productId}/reviews`
             );
-        }
 
-        const orders =
-            result.data?.orders || [];
 
-        if (orders.length === 0) {
-            productMessage.textContent =
-                "No orders found.";
+        const result =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !result.success
+        ) {
+
+            reviewContainer.innerHTML =
+                "<p>No reviews available.</p>";
 
             return;
         }
 
-        const summary = orders
-            .map(order => {
-                const amount =
-                    Number(
-                        order.total_amount_cents || 0
-                    ) / 100;
 
-                return (
-                    `Order #${order.id} — ` +
-                    `${order.status} — ` +
-                    `₹${amount.toFixed(2)}`
-                );
-            })
-            .join(" | ");
+        const reviews =
+            result.data?.reviews || [];
 
-        productMessage.textContent =
-            `Order History: ${summary}`;
+
+        if (reviews.length === 0) {
+
+            reviewContainer.innerHTML =
+                "<p>No reviews yet.</p>";
+
+            return;
+        }
+
+
+        reviewContainer.innerHTML =
+            reviews
+                .map(
+                    review => {
+
+                        const rating =
+                            Number(
+                                review.rating ||
+                                0
+                            );
+
+
+                        const stars =
+                            "★".repeat(
+                                rating
+                            ) +
+                            "☆".repeat(
+                                Math.max(
+                                    0,
+                                    5 - rating
+                                )
+                            );
+
+
+                        return `
+                            <div class="review-item">
+
+                                <strong>
+                                    ${stars}
+                                </strong>
+
+                                <p>
+                                    ${escapeHtml(
+                                        review.comment ||
+                                        ""
+                                    )}
+                                </p>
+
+                            </div>
+                        `;
+                    }
+                )
+                .join("");
 
     } catch (error) {
-        console.error(error);
 
-        productMessage.textContent =
-            error.message ||
-            "Unable to load order history.";
-    }
-}
-async function submitReview(productId) {
-    const user = getUser();
-
-    if (!user) {
-        return;
-    }
-
-    const ratingInput = document.getElementById(
-        `rating-${productId}`
-    );
-
-    const commentInput = document.getElementById(
-        `review-${productId}`
-    );
-
-    const rating = Number(ratingInput.value);
-    const comment = commentInput.value.trim();
-
-    if (rating < 1 || rating > 5) {
-        productMessage.textContent =
-            "Please select a rating from 1 to 5.";
-
-        return;
-    }
-
-    if (!comment) {
-        productMessage.textContent =
-            "Please enter a review.";
-
-        return;
-    }
-
-    productMessage.textContent =
-        "Submitting review...";
-
-    try {
-        const response = await fetch(
-            `${API_BASE}/api/products/${productId}/reviews/${user.id}`,
-            {
-                method: "POST",
-                headers: authHeaders(),
-                body: JSON.stringify({
-                    rating,
-                    comment
-                })
-            }
+        console.error(
+            "Review loading error:",
+            error
         );
 
-        const result = await response.json();
 
-        if (!response.ok || !result.success) {
+        reviewContainer.innerHTML =
+            "<p>Unable to load reviews.</p>";
+    }
+}
+
+
+/* =========================================================
+   SUBMIT REVIEW
+   ========================================================= */
+
+async function submitReview(productId) {
+
+    const user =
+        getUser();
+
+
+    if (!user) {
+
+        showLogin();
+
+        return;
+    }
+
+
+    const ratingInput =
+        document.getElementById(
+            `rating-${productId}`
+        );
+
+
+    const commentInput =
+        document.getElementById(
+            `review-${productId}`
+        );
+
+
+    if (
+        !ratingInput ||
+        !commentInput
+    ) {
+
+        return;
+    }
+
+
+    const rating =
+        Number(
+            ratingInput.value
+        );
+
+
+    const comment =
+        commentInput.value.trim();
+
+
+    if (
+        rating < 1 ||
+        rating > 5
+    ) {
+
+        if (productMessage) {
+
+            productMessage.textContent =
+                "Please select a rating from 1 to 5.";
+        }
+
+        return;
+    }
+
+
+    if (!comment) {
+
+        if (productMessage) {
+
+            productMessage.textContent =
+                "Please enter a review.";
+        }
+
+        return;
+    }
+
+
+    if (productMessage) {
+
+        productMessage.textContent =
+            "Submitting review...";
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE}/api/products/${productId}/reviews/${user.id}`,
+                {
+                    method: "POST",
+
+                    headers:
+                        authHeaders(),
+
+                    body:
+                        JSON.stringify({
+                            rating,
+                            comment
+                        })
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !result.success
+        ) {
+
             throw new Error(
                 result.error ||
                 result.message ||
@@ -598,286 +1412,403 @@ async function submitReview(productId) {
             );
         }
 
-        productMessage.textContent =
-            "Review submitted successfully.";
+
+        if (productMessage) {
+
+            productMessage.textContent =
+                "Review submitted successfully.";
+        }
+
 
         ratingInput.value = "";
+
         commentInput.value = "";
 
-    } catch (error) {
-        console.error(error);
 
-        productMessage.textContent =
-            error.message ||
-            "Unable to submit review.";
+        await loadReviews(
+            productId
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Review submission error:",
+            error
+        );
+
+
+        if (productMessage) {
+
+            productMessage.textContent =
+                error.message ||
+                "Unable to submit review.";
+        }
     }
 }
 
-loginForm.addEventListener(
-    "submit",
-    async event => {
-        event.preventDefault();
 
-        const email =
-            document.getElementById("email").value.trim();
+/* =========================================================
+   LOGIN
+   ========================================================= */
 
-        const password =
-            document.getElementById("password").value;
+if (loginForm) {
 
-        message.textContent =
-            "Logging in...";
+    loginForm.addEventListener(
+        "submit",
+        async event => {
 
-        try {
-            const response = await fetch(
-                `${API_BASE}/api/auth/login`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        email,
-                        password
-                    })
-                }
-            );
+            event.preventDefault();
 
-            const result = await response.json();
 
-            if (!response.ok || !result.success) {
+            const email =
+                document
+                    .getElementById(
+                        "email"
+                    )
+                    .value
+                    .trim();
+
+
+            const password =
+                document
+                    .getElementById(
+                        "password"
+                    )
+                    .value;
+
+
+            if (message) {
+
                 message.textContent =
-                    result.error ||
-                    result.message ||
-                    "Login failed.";
-
-                return;
+                    "Logging in...";
             }
 
-            localStorage.setItem(
-                "kanimart_token",
-                result.data.token
-            );
 
-            localStorage.setItem(
-                "kanimart_user",
-                JSON.stringify(result.data.user)
-            );
+            try {
 
-            message.textContent =
-                `Welcome, ${result.data.user.name}!`;
+                const response =
+                    await fetch(
+                        `${API_BASE}/api/auth/login`,
+                        {
+                            method: "POST",
 
-            showMarketplace();
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
 
-        } catch (error) {
-            console.error(error);
-
-            message.textContent =
-                "Cannot connect to KaniMart server.";
-        }
-    }
-);
+                            body:
+                                JSON.stringify({
+                                    email,
+                                    password
+                                })
+                        }
+                    );
 
 
-logoutButton.addEventListener(
-    "click",
-    () => {
-        localStorage.removeItem(
-            "kanimart_token"
-        );
-
-        localStorage.removeItem(
-            "kanimart_user"
-        );
-
-        showMarketplace();
-    }
-);
+                const result =
+                    await response.json();
 
 
-searchInput.addEventListener(
-    "input",
-    renderProducts
-);
+                if (
+                    !response.ok ||
+                    !result.success
+                ) {
 
+                    if (message) {
 
-categoryFilter.addEventListener(
-    "change",
-    renderProducts
-);
+                        message.textContent =
+                            result.error ||
+                            result.message ||
+                            "Login failed.";
+                    }
 
-
-refreshProducts.addEventListener(
-    "click",
-    async () => {
-        await loadProducts();
-        await loadCart();
-    }
-);
-
-
-cartButton.addEventListener(
-    "click",
-    async () => {
-        await loadCart();
-
-        const count = cart.items.reduce(
-            (total, item) =>
-                total + Number(item.quantity || 0),
-            0
-        );
-
-        if (count === 0) {
-            productMessage.textContent =
-                "Your cart is empty.";
-
-            return;
-        }
-
-        const summary = cart.items
-            .map(item =>
-                `${item.name} × ${item.quantity} = ₹${(
-                    Number(item.subtotal_cents || 0) / 100
-                ).toFixed(2)}`
-            )
-            .join(" | ");
-
-        productMessage.textContent =
-            `Cart: ${summary} | Total: ₹${(
-                Number(cart.total_cents || 0) / 100
-            ).toFixed(2)}`;
-    }
-);
-
-
-orderHistoryButton.addEventListener(
-    "click",
-    loadOrderHistory
-);
-
-
-checkoutButton.addEventListener(
-    "click",
-    async () => {
-        const user = getUser();
-
-        if (!user) {
-            return;
-        }
-
-        await loadCart();
-
-        if (cart.items.length === 0) {
-            productMessage.textContent =
-                "Your cart is empty.";
-
-            return;
-        }
-
-        productMessage.textContent =
-            "Processing checkout...";
-
-        try {
-            const response = await fetch(
-                `${API_BASE}/api/orders/checkout/${user.id}`,
-                {
-                    method: "POST",
-                    headers: authHeaders()
+                    return;
                 }
+
+
+                /*
+                 * Save JWT.
+                 */
+
+                localStorage.setItem(
+                    "kanimart_token",
+                    result.data.token
+                );
+
+
+                /*
+                 * Save user.
+                 */
+
+                localStorage.setItem(
+                    "kanimart_user",
+                    JSON.stringify(
+                        result.data.user
+                    )
+                );
+
+
+                if (message) {
+
+                    message.textContent =
+                        `Welcome, ${result.data.user.name}!`;
+                }
+
+
+                /*
+                 * Show marketplace.
+                 */
+
+                showMarketplace();
+
+            } catch (error) {
+
+                console.error(
+                    "Login error:",
+                    error
+                );
+
+
+                if (message) {
+
+                    message.textContent =
+                        "Cannot connect to KaniMart server.";
+                }
+            }
+        }
+    );
+}
+
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+
+if (logoutButton) {
+
+    logoutButton.addEventListener(
+        "click",
+        () => {
+
+            localStorage.removeItem(
+                "kanimart_token"
             );
 
-            const result = await response.json();
 
-            if (!response.ok || !result.success) {
-                throw new Error(
-                    result.error ||
-                    result.message ||
-                    "Checkout failed."
-                );
-            }
+            localStorage.removeItem(
+                "kanimart_user"
+            );
+
 
             cart = {
                 items: [],
                 total_cents: 0
             };
 
-            updateCartCount();
 
-            const ordersResponse = await fetch(
-                `${API_BASE}/api/orders/${user.id}`,
-                {
-                    method: "GET",
-                    headers: authHeaders()
-                }
-            );
-
-            const ordersResult =
-                await ordersResponse.json();
-
-            if (
-                ordersResponse.ok &&
-                ordersResult.success &&
-                ordersResult.data &&
-                Array.isArray(
-                    ordersResult.data.orders
-                ) &&
-                ordersResult.data.orders.length > 0
-            ) {
-                const latestOrder =
-                    ordersResult.data.orders[0];
-
-                productMessage.textContent =
-                    `Checkout successful! Order #${latestOrder.id} created.`;
-            } else {
-                productMessage.textContent =
-                    "Checkout successful! Your order was created.";
-            }
-
-        } catch (error) {
-            console.error(error);
-
-            productMessage.textContent =
-                error.message ||
-                "Unable to complete checkout.";
+            showLogin();
         }
-    }
-);
+    );
+}
+
 
 /* =========================================================
-   KaniMart AI Assistant
-   Backend: POST /api/chat
+   SEARCH
+   ========================================================= */
+
+if (searchInput) {
+
+    searchInput.addEventListener(
+        "input",
+        renderProducts
+    );
+}
+
+
+/* =========================================================
+   CATEGORY FILTER
+   ========================================================= */
+
+if (categoryFilter) {
+
+    categoryFilter.addEventListener(
+        "change",
+        renderProducts
+    );
+}
+
+
+/* =========================================================
+   REFRESH PRODUCTS
+   ========================================================= */
+
+if (refreshProducts) {
+
+    refreshProducts.addEventListener(
+        "click",
+        async () => {
+
+            await loadProducts();
+
+            await loadCart();
+        }
+    );
+}
+
+
+/* =========================================================
+   CART NAVIGATION
+   ========================================================= */
+
+if (cartButton) {
+
+    cartButton.addEventListener(
+        "click",
+        () => {
+
+            window.location.href =
+                "cart.html";
+        }
+    );
+}
+
+
+/* =========================================================
+   ORDER HISTORY
+   ========================================================= */
+
+if (orderHistoryButton) {
+
+    orderHistoryButton.addEventListener(
+        "click",
+        () => {
+
+            window.location.href =
+                "orders.html";
+        }
+    );
+}
+
+
+/* =========================================================
+   CHECKOUT
+   ========================================================= */
+
+if (checkoutButton) {
+
+    checkoutButton.addEventListener(
+        "click",
+        () => {
+
+            window.location.href =
+                "checkout.html";
+        }
+    );
+}
+
+
+/* =========================================================
+   HTML ESCAPING
+   ========================================================= */
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+}
+
+
+/* =========================================================
+   AI CHATBOT
    ========================================================= */
 
 function setupChatbot() {
-    if (document.getElementById("kanimartChatbot")) {
+
+    if (
+        document.getElementById(
+            "kanimartChatbot"
+        )
+    ) {
+
         return;
     }
 
-    const chatbot = document.createElement("section");
 
-    chatbot.id = "kanimartChatbot";
-    chatbot.className = "chatbot-section";
+    const chatbot =
+        document.createElement(
+            "section"
+        );
+
+
+    chatbot.id =
+        "kanimartChatbot";
+
+
+    chatbot.className =
+        "chatbot-section";
+
 
     chatbot.innerHTML = `
+
         <div class="chatbot-header">
+
             <div>
-                <h2>KaniMart AI Assistant</h2>
-                <p>Ask me about shopping and using KaniMart.</p>
+
+                <h2>
+                    KaniMart AI Assistant
+                </h2>
+
+                <p>
+                    Ask me about shopping and using KaniMart.
+                </p>
+
             </div>
+
         </div>
+
 
         <div
             id="chatMessages"
             class="chat-messages"
         >
+
             <div class="chat-message assistant">
-                <strong>KaniMart Assistant</strong>
+
+                <strong>
+                    KaniMart Assistant
+                </strong>
+
                 <span>
                     Hello! How can I help you with KaniMart?
                 </span>
+
             </div>
+
         </div>
 
+
         <div class="chat-input-row">
+
             <input
                 type="text"
                 id="chatInput"
@@ -886,6 +1817,7 @@ function setupChatbot() {
                 autocomplete="off"
             />
 
+
             <button
                 type="button"
                 id="chatSendButton"
@@ -893,7 +1825,9 @@ function setupChatbot() {
             >
                 Send
             </button>
+
         </div>
+
 
         <p
             id="chatStatus"
@@ -902,173 +1836,298 @@ function setupChatbot() {
         ></p>
     `;
 
+
     const marketplace =
-        document.getElementById("marketplaceSection");
+        document.getElementById(
+            "marketplaceSection"
+        );
+
 
     if (marketplace) {
-        marketplace.appendChild(chatbot);
+
+        marketplace.appendChild(
+            chatbot
+        );
+
     } else {
-        document.body.appendChild(chatbot);
+
+        document.body.appendChild(
+            chatbot
+        );
     }
 
+
     const chatInput =
-        document.getElementById("chatInput");
+        document.getElementById(
+            "chatInput"
+        );
+
 
     const chatSendButton =
-        document.getElementById("chatSendButton");
+        document.getElementById(
+            "chatSendButton"
+        );
 
-    chatSendButton.addEventListener(
-        "click",
-        sendChatMessage
-    );
 
-    chatInput.addEventListener(
-        "keydown",
-        event => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                sendChatMessage();
+    if (chatSendButton) {
+
+        chatSendButton.addEventListener(
+            "click",
+            sendChatMessage
+        );
+    }
+
+
+    if (chatInput) {
+
+        chatInput.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    event.key ===
+                    "Enter"
+                ) {
+
+                    event.preventDefault();
+
+                    sendChatMessage();
+                }
             }
-        }
-    );
+        );
+    }
 }
 
 
+/* =========================================================
+   SEND CHAT MESSAGE
+   ========================================================= */
+
 async function sendChatMessage() {
+
     const input =
-        document.getElementById("chatInput");
+        document.getElementById(
+            "chatInput"
+        );
+
 
     const messages =
-        document.getElementById("chatMessages");
+        document.getElementById(
+            "chatMessages"
+        );
+
 
     const status =
-        document.getElementById("chatStatus");
+        document.getElementById(
+            "chatStatus"
+        );
+
 
     const button =
-        document.getElementById("chatSendButton");
+        document.getElementById(
+            "chatSendButton"
+        );
 
-    if (!input || !messages || !status || !button) {
+
+    if (
+        !input ||
+        !messages ||
+        !status ||
+        !button
+    ) {
+
         return;
     }
 
+
     const userMessage =
         input.value.trim();
+
 
     if (!userMessage) {
         return;
     }
 
+
     /*
-     * Display the user's message safely.
-     * textContent is used instead of innerHTML
-     * to prevent HTML/script injection.
+     * User message.
      */
+
     const userMessageElement =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
+
 
     userMessageElement.className =
         "chat-message user";
 
-    const userLabel =
-        document.createElement("strong");
 
-    userLabel.textContent = "You";
+    const userLabel =
+        document.createElement(
+            "strong"
+        );
+
+
+    userLabel.textContent =
+        "You";
+
 
     const userText =
-        document.createElement("span");
+        document.createElement(
+            "span"
+        );
 
-    userText.textContent = userMessage;
 
-    userMessageElement.appendChild(userLabel);
-    userMessageElement.appendChild(userText);
+    userText.textContent =
+        userMessage;
 
-    messages.appendChild(userMessageElement);
+
+    userMessageElement.appendChild(
+        userLabel
+    );
+
+
+    userMessageElement.appendChild(
+        userText
+    );
+
+
+    messages.appendChild(
+        userMessageElement
+    );
+
 
     input.value = "";
+
     button.disabled = true;
+
 
     status.textContent =
         "KaniMart Assistant is thinking...";
 
+
     messages.scrollTop =
         messages.scrollHeight;
 
+
     try {
-        const response = await fetch(
-            `${API_BASE}/api/chat`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    message: userMessage
-                })
-            }
-        );
+
+        const response =
+            await fetch(
+                `${API_BASE}/api/chat`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            message:
+                                userMessage
+                        })
+                }
+            );
+
 
         const result =
             await response.json();
 
-        if (!response.ok || !result.success) {
+
+        if (
+            !response.ok ||
+            !result.success
+        ) {
+
             throw new Error(
                 result.error ||
                 "Unable to contact the AI assistant."
             );
         }
 
+
         const answer =
             result.data?.message;
 
+
         if (!answer) {
+
             throw new Error(
                 "AI assistant returned an empty response."
             );
         }
 
+
+        /*
+         * Assistant response.
+         */
+
         const assistantMessageElement =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
+
 
         assistantMessageElement.className =
             "chat-message assistant";
 
+
         const assistantLabel =
-            document.createElement("strong");
+            document.createElement(
+                "strong"
+            );
+
 
         assistantLabel.textContent =
             "KaniMart Assistant";
 
+
         const assistantText =
-            document.createElement("span");
+            document.createElement(
+                "span"
+            );
+
 
         assistantText.textContent =
             answer;
+
 
         assistantMessageElement.appendChild(
             assistantLabel
         );
 
+
         assistantMessageElement.appendChild(
             assistantText
         );
+
 
         messages.appendChild(
             assistantMessageElement
         );
 
+
         status.textContent = "";
 
     } catch (error) {
+
         console.error(
             "KaniMart AI error:",
             error
         );
 
+
         status.textContent =
             error.message ||
             "Unable to contact the AI assistant.";
+
     } finally {
+
         button.disabled = false;
+
         input.focus();
 
         messages.scrollTop =
@@ -1077,7 +2136,74 @@ async function sendChatMessage() {
 }
 
 
-setupChatbot();
+/* =========================================================
+   INITIALIZATION
+   ========================================================= */
 
-updateCartCount();
-showMarketplace();
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        /*
+         * Create chatbot.
+         */
+
+        setupChatbot();
+
+
+        /*
+         * Restore saved login session.
+         */
+
+        const token =
+            localStorage.getItem(
+                "kanimart_token"
+            );
+
+
+        const savedUser =
+            localStorage.getItem(
+                "kanimart_user"
+            );
+
+
+        if (
+            token &&
+            savedUser
+        ) {
+
+            try {
+
+                const user =
+                    JSON.parse(
+                        savedUser
+                    );
+
+
+                if (
+                    user &&
+                    user.id
+                ) {
+
+                    showMarketplace();
+
+                    return;
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Unable to restore session:",
+                    error
+                );
+            }
+        }
+
+
+        /*
+         * No valid session.
+         */
+
+        showLogin();
+    }
+);

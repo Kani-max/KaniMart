@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>KaniMart - Shopping Cart</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6fa;
+            color: #111827;
+        }
+
+        header {
+            width: 100%;
+            min-height: 56px;
+
+            padding: 0 28px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            background: #111827;
+            color: white;
+        }
+        .brand {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+
+        .brand h1 {
+            margin: 0;
+
+            font-size: 22px;
+
+            color: white;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        nav {
+            display: flex;
+            gap: 22px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        .cart-page {
+            width: 100%;
+            max-width: none;
+            margin: 0;
+            padding: 0 28px 35px;
+        }
+
+        .cart-heading {
+            margin-bottom: 25px;
+        }
+
+        .cart-heading h2 {
+            margin: 0 0 8px;
+            font-size: 30px;
+        }
+
+        .cart-heading p {
+            margin: 0;
+            color: #6b7280;
+        }
+
+        .cart-layout {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 25px;
+            align-items: start;
+        }
+
+        .cart-card,
+        .summary-card {
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+        }
+
+        .cart-card {
+            padding: 25px;
+        }
+
+        .cart-card-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 18px;
+            margin-bottom: 10px;
+        }
+
+        .cart-card-title h3 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .cart-item {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            padding: 22px 5px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .cart-item h3 {
+            margin: 0 0 10px;
+            font-size: 18px;
+        }
+
+        .cart-item p {
+            margin: 5px 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .cart-item .item-price {
+            font-size: 18px;
+            font-weight: bold;
+            color: #111827;
+            text-align: right;
+        }
+
+        .summary-card {
+            padding: 25px;
+            position: sticky;
+            top: 20px;
+        }
+
+        .summary-card h3 {
+            margin: 0 0 20px;
+            font-size: 21px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            color: #6b7280;
+        }
+
+        .summary-row.total {
+            margin-top: 10px;
+            padding-top: 18px;
+            border-top: 1px solid #e5e7eb;
+            color: #111827;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .checkout-button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 14px;
+            border: none;
+            border-radius: 9px;
+            background: #111827;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .checkout-button:hover {
+            background: #374151;
+        }
+
+        .continue-shopping {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #374151;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .continue-shopping:hover {
+            text-decoration: underline;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 55px 20px;
+        }
+
+        .empty-cart-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .empty-cart h3 {
+            margin: 0 0 8px;
+        }
+
+        .empty-cart p {
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+
+        .empty-cart a {
+            display: inline-block;
+            padding: 11px 20px;
+            background: #111827;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 800px) {
+            header {
+                padding: 16px 20px;
+            }
+
+            .cart-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-card {
+                position: static;
+            }
+
+            nav {
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 500px) {
+            header {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .cart-page {
+                margin-top: 25px;
+            }
+
+            .cart-item {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-item .item-price {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>KaniMart</h1>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="cart.html">Cart</a>
+        <a href="orders.html">Orders</a>
+    </nav>
+</header>
+
+
+<main class="cart-page">
+
+    <div class="cart-heading">
+        <h2>Shopping Cart</h2>
+        <p>Review your items before proceeding to checkout.</p>
+    </div>
+
+
+    <div class="cart-layout">
+
+        <!-- CART ITEMS -->
+
+        <section class="cart-card">
+
+            <div class="cart-card-title">
+                <h3>Your Items</h3>
+                <span id="itemCount">0 items</span>
+            </div>
+
+            <div id="cartItems">
+                <div class="loading">
+                    Loading your cart...
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- ORDER SUMMARY -->
+
+        <aside class="summary-card">
+
+            <h3>Order Summary</h3>
+
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span>₹<span id="subtotal">0.00</span></span>
+            </div>
+
+            <div class="summary-row">
+                <span>Delivery</span>
+                <span>Free</span>
+            </div>
+
+            <div class="summary-row total">
+                <span>Total</span>
+                <span>₹<span id="cartTotal">0.00</span></span>
+            </div>
+
+            <button
+                id="checkoutButton"
+                class="checkout-button"
+                type="button"
+            >
+                Proceed to Checkout
+            </button>
+
+            <a
+                href="index.html"
+                class="continue-shopping"
+            >
+                ← Continue Shopping
+            </a>
+
+        </aside>
+
+    </div>
+
+</main>
+
+
+<script>
+
+const API_BASE = "http://127.0.0.1:8080";
+
+const token =
+    localStorage.getItem("kanimart_token");
+
+const user = JSON.parse(
+    localStorage.getItem("kanimart_user") || "null"
+);
+
+
+/* --------------------------------
+   Authentication
+-------------------------------- */
+
+if (!token || !user) {
+
+    window.location.href = "index.html";
+
+}
+
+
+/* --------------------------------
+   Load Cart
+-------------------------------- */
+
+async function loadCart() {
+
+    const container =
+        document.getElementById("cartItems");
+
+    const totalElement =
+        document.getElementById("cartTotal");
+
+    const subtotalElement =
+        document.getElementById("subtotal");
+
+    const countElement =
+        document.getElementById("itemCount");
+
+    try {
+
+        const response = await fetch(
+            `${API_BASE}/api/cart/${user.id}`,
+            {
+                method: "GET",
+
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+
+        const result =
+            await response.json();
+
+
+        if (!response.ok || !result.success) {
+
+            throw new Error(
+                result.error ||
+                result.message ||
+                "Unable to load cart"
+            );
+
+        }
+
+
+        let items = [];
+
+
+        if (Array.isArray(result.data)) {
+
+            items = result.data;
+
+        }
+        else if (
+            result.data &&
+            Array.isArray(result.data.items)
+        ) {
+
+            items = result.data.items;
+
+        }
+
+
+        /* ----------------------------
+           Empty Cart
+        ---------------------------- */
+
+        if (items.length === 0) {
+
+            container.innerHTML = `
+                <div class="empty-cart">
+
+                    <div class="empty-cart-icon">
+                        🛒
+                    </div>
+
+                    <h3>Your cart is empty</h3>
+
+                    <p>
+                        Looks like you haven't added
+                        anything to your cart yet.
+                    </p>
+
+                    <a href="index.html">
+                        Start Shopping
+                    </a>
+
+                </div>
+            `;
+
+            totalElement.textContent = "0.00";
+            subtotalElement.textContent = "0.00";
+            countElement.textContent = "0 items";
+
+            return;
+        }
+
+
+        /* ----------------------------
+           Render Items
+        ---------------------------- */
+
+        let total = 0;
+        let quantityTotal = 0;
+
+
+        container.innerHTML = items.map(item => {
+
+            const price =
+                Number(item.price_cents || 0) / 100;
+
+            const quantity =
+                Number(item.quantity || 0);
+
+            const subtotal =
+                price * quantity;
+
+
+            total += subtotal;
+            quantityTotal += quantity;
+
+
+            return `
+                <div class="cart-item">
+
+                    <div>
+
+                        <h3>
+                            ${item.name || "Product"}
+                        </h3>
+
+                        <p>
+                            Unit Price:
+                            ₹${price.toFixed(2)}
+                        </p>
+
+                        <p>
+                            Quantity:
+                            ${quantity}
+                        </p>
+
+                        <p>
+                            Subtotal:
+                            ₹${subtotal.toFixed(2)}
+                        </p>
+
+                    </div>
+
+                    <div class="item-price">
+                        ₹${subtotal.toFixed(2)}
+                    </div>
+
+                </div>
+            `;
+
+        }).join("");
+
+
+        /* ----------------------------
+           Update Summary
+        ---------------------------- */
+
+        totalElement.textContent =
+            total.toFixed(2);
+
+        subtotalElement.textContent =
+            total.toFixed(2);
+
+        countElement.textContent =
+            `${quantityTotal} ${
+                quantityTotal === 1
+                    ? "item"
+                    : "items"
+            }`;
+
+    }
+    catch (error) {
+
+        console.error(
+            "Cart loading error:",
+            error
+        );
+
+        container.innerHTML = `
+            <div class="error-message">
+                Unable to load cart:
+                ${error.message}
+            </div>
+        `;
+
+    }
+
+}
+
+
+/* --------------------------------
+   Checkout
+-------------------------------- */
+
+document
+    .getElementById("checkoutButton")
+    .addEventListener(
+        "click",
+        () => {
+
+            window.location.href =
+                "checkout.html";
+
+        }
+    );
+
+
+/* --------------------------------
+   Start
+-------------------------------- */
+
+loadCart();
+
+</script>
+
+</body>
+</html>

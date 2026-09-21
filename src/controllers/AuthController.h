@@ -1,36 +1,89 @@
 #pragma once
+
 #include <drogon/HttpController.h>
-namespace kani::kanimart {
+
+namespace kani::kanimart
+{
+
 class AuthController final
     : public drogon::HttpController<AuthController>
 {
 public:
+
     METHOD_LIST_BEGIN
+
+    // ================================
+    // Registration
+    // ================================
+
     ADD_METHOD_TO(
         AuthController::registerUser,
         "/api/auth/register",
-        drogon::Post);
+        drogon::Post
+    );
+
+
+    // ================================
+    // Login
+    // ================================
+
     ADD_METHOD_TO(
         AuthController::login,
         "/api/auth/login",
-        drogon::Post);
+        drogon::Post
+    );
+
+
+    // ================================
+    // CORS / OPTIONS
+    // ================================
+
     ADD_METHOD_TO(
         AuthController::options,
         "/api/auth/register",
-        drogon::Options);
+        drogon::Options
+    );
+
     ADD_METHOD_TO(
         AuthController::options,
         "/api/auth/login",
-        drogon::Options);
+        drogon::Options
+    );
+
     METHOD_LIST_END
+
+
+    // ================================
+    // Registration
+    // ================================
+
     void registerUser(
         const drogon::HttpRequestPtr& request,
-        std::function<void(const drogon::HttpResponsePtr&)>&& callback);
+        std::function<void(
+            const drogon::HttpResponsePtr&)>&& callback
+    );
+
+
+    // ================================
+    // Login
+    // ================================
+
     void login(
         const drogon::HttpRequestPtr& request,
-        std::function<void(const drogon::HttpResponsePtr&)>&& callback);
+        std::function<void(
+            const drogon::HttpResponsePtr&)>&& callback
+    );
+
+
+    // ================================
+    // OPTIONS / CORS
+    // ================================
+
     void options(
         const drogon::HttpRequestPtr& request,
-        std::function<void(const drogon::HttpResponsePtr&)>&& callback);
+        std::function<void(
+            const drogon::HttpResponsePtr&)>&& callback
+    );
 };
+
 } // namespace kani::kanimart
