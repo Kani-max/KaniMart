@@ -46,3 +46,14 @@ Keep the existing `config.json`, set `KANIMART_JWT_SECRET`, start the backend on
 4. Deploy and open the generated `onrender.com` URL. The web service serves the frontend and `/api/*` from the same origin.
 
 The Docker startup script reads Render's `DATABASE_URL`, applies `db/migrations/001_initial.sql`, generates Drogon configuration using Render's `PORT`, and starts the API. The migration is idempotent, but production backups and a versioned migration runner are still recommended before changing the schema.
+
+## Deploy the frontend on Vercel
+
+Vercel hosts the static frontend; the C++ Drogon API must remain on Render or another backend host.
+
+1. Deploy the backend on Render first and copy its public URL.
+2. Replace `YOUR-RENDER-SERVICE.onrender.com` in `vercel.json` with that backend hostname.
+3. Add the Vercel domain to Render's `KANIMART_ALLOWED_ORIGINS`, for example `https://kanimart.vercel.app`.
+4. Import this repository into Vercel with the repository root as the project root and deploy. `vercel.json` serves `frontend/` and proxies `/api/*` to Render.
+
+Do not put `OPENAI_API_KEY`, `DATABASE_URL`, or `KANIMART_JWT_SECRET` in Vercel. Those secrets belong only to the Render backend.

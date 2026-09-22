@@ -8,15 +8,13 @@
   ],
   "db_clients": [
     {
-      "name": "kanimart",
+      "name": "default",
       "rdbms": "postgresql",
-      "host": "127.0.0.1",
+      "host": "localhost",
       "port": 5432,
       "dbname": "kanimart",
-      "user": "replace-with-database-user",
-      "passwd": "replace-with-database-password",
-      "is_fast": false,
-      "connection_number": 4
+      "user": "postgres",
+      "passwd": "CHANGE_ME"
     }
   ]
 }
