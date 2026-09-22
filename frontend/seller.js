@@ -1,5 +1,9 @@
-const API_BASE =
-    "http://127.0.0.1:8080";
+const API_BASE = window.KANIMART_API_BASE ||
+    (window.location.protocol === "http:" &&
+        (window.location.hostname === "127.0.0.1" ||
+            window.location.hostname === "localhost")
+        ? "http://127.0.0.1:8080"
+        : "");
 
 
 /* =========================================================
@@ -80,8 +84,19 @@ const imagePreviewContainer =
         "imagePreviewContainer"
     );
 
+const sellerOrders =
+    document.getElementById("sellerOrders");
+
+const refreshSellerOrders =
+    document.getElementById("refreshSellerOrders");
+
+const sellerOrderMessage =
+    document.getElementById("sellerOrderMessage");
+
 
 let products = [];
+
+let sellerOrderData = [];
 
 
 /* =========================================================
@@ -214,6 +229,148 @@ function getImageUrl(product) {
     }
 
     return "https://via.placeholder.com/600x400?text=KaniMart";
+}
+
+function getOrderStatusOptions(status) {
+    const transitions = {
+        PENDING: ["CONFIRMED", "CANCELLED"],
+        CONFIRMED: ["SHIPPED", "CANCELLED"],
+        SHIPPED: ["DELIVERED"],
+        DELIVERED: [],
+        CANCELLED: []
+    };
+
+    return [status, ...(transitions[status] || [])]
+        .filter((value, index, values) => values.indexOf(value) === index);
+}
+
+function formatOrderDate(value) {
+    if (!value) {
+        return "Date unavailable";
+    }
+
+    const date = new Date(value);
+    return Number.isNaN(date.getTime())
+        ? String(value)
+        : date.toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        });
+}
+
+async function loadSellerOrders() {
+    if (!sellerOrders || !checkSellerAccess()) {
+        return;
+    }
+
+    sellerOrders.innerHTML = `<div class="loading">Loading orders...</div>`;
+
+    try {
+        const response = await fetch(
+            `${API_BASE}/api/seller/orders`,
+            { headers: authHeaders() }
+        );
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || "Unable to load orders.");
+        }
+
+        sellerOrderData = result.data?.orders || [];
+        renderSellerOrders();
+    } catch (error) {
+        sellerOrders.innerHTML = `
+            <div class="empty-state">
+                <h3>Unable to load orders</h3>
+                <p>${escapeHtml(error.message || "Please try again.")}</p>
+            </div>
+        `;
+    }
+}
+
+function renderSellerOrders() {
+    if (!sellerOrderData.length) {
+        sellerOrders.innerHTML = `
+            <div class="empty-state">
+                <h3>No orders to fulfill</h3>
+                <p>Orders containing your products will appear here.</p>
+            </div>
+        `;
+        return;
+    }
+
+    sellerOrders.innerHTML = sellerOrderData.map(order => {
+        const status = order.status || "PENDING";
+        const options = getOrderStatusOptions(status)
+            .map(option => `
+                <option value="${option}" ${option === status ? "selected" : ""}>
+                    ${option.charAt(0) + option.slice(1).toLowerCase()}
+                </option>
+            `)
+            .join("");
+        const total = Number(order.total_amount_cents || 0) / 100;
+
+        return `
+            <article class="seller-order">
+                <div class="seller-order-id">
+                    <strong>Order #${Number(order.id)}</strong>
+                    <span>${formatOrderDate(order.created_at)}</span>
+                </div>
+                <div class="seller-order-buyer">
+                    <strong>Customer</strong>
+                    <span>${escapeHtml(order.buyer_email || "Customer")}</span>
+                </div>
+                <div class="seller-order-total">
+                    <strong>₹${total.toFixed(2)}</strong>
+                    <span>Order total</span>
+                </div>
+                <select class="seller-order-status" data-order-id="${Number(order.id)}" aria-label="Update order ${Number(order.id)} status">
+                    ${options}
+                </select>
+            </article>
+        `;
+    }).join("");
+
+    sellerOrders.querySelectorAll(".seller-order-status").forEach(select => {
+        select.addEventListener("change", () => updateSellerOrderStatus(select));
+    });
+}
+
+async function updateSellerOrderStatus(select) {
+    const user = getUser();
+    const orderId = Number(select.dataset.orderId);
+    const newStatus = select.value;
+    const order = sellerOrderData.find(item => Number(item.id) === orderId);
+
+    if (!user || !order) {
+        return;
+    }
+
+    select.disabled = true;
+    sellerOrderMessage.textContent = `Updating order #${orderId}...`;
+
+    try {
+        const response = await fetch(
+            `${API_BASE}/api/orders/${user.id}/${orderId}/status`,
+            {
+                method: "PUT",
+                headers: authHeaders(),
+                body: JSON.stringify({ status: newStatus })
+            }
+        );
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || "Unable to update order status.");
+        }
+
+        sellerOrderMessage.textContent = `Order #${orderId} is now ${newStatus}.`;
+        await loadSellerOrders();
+    } catch (error) {
+        sellerOrderMessage.textContent = error.message || "Unable to update order status.";
+        renderSellerOrders();
+    }
 }
 
 
@@ -1163,6 +1320,11 @@ refreshSellerProducts.addEventListener(
     }
 );
 
+refreshSellerOrders.addEventListener(
+    "click",
+    loadSellerOrders
+);
+
 
 /* =========================================================
    LOGOUT
@@ -1199,5 +1361,6 @@ document.addEventListener(
         }
 
         loadSellerProducts();
+        loadSellerOrders();
     }
 );

@@ -246,6 +246,16 @@
             font-size: 20px;
         }
 
+        .seller-status-select {
+            min-width: 145px;
+            padding: 9px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #111827;
+            font-size: 13px;
+        }
+
         @media (max-width: 650px) {
 
             header {
@@ -306,7 +316,7 @@
 
         <h2>Order History</h2>
 
-        <p>
+        <p id="ordersDescription">
             View your previous KaniMart orders and their status.
         </p>
 
@@ -341,8 +351,12 @@
 
 <script>
 
-const API_BASE =
-    "http://127.0.0.1:8080";
+const API_BASE = window.KANIMART_API_BASE ||
+    (window.location.protocol === "http:" &&
+        (window.location.hostname === "127.0.0.1" ||
+            window.location.hostname === "localhost")
+        ? "http://127.0.0.1:8080"
+        : "");
 
 
 const token =
@@ -427,9 +441,20 @@ async function loadOrders() {
 
     try {
 
+        const isSeller =
+            user.role === "SELLER" ||
+            user.role === "ADMIN";
+
+        if (isSeller) {
+            document.getElementById("ordersDescription").textContent =
+                "Review orders containing your products and manage their status.";
+        }
+
         const response =
             await fetch(
-                `${API_BASE}/api/orders/${user.id}`,
+                isSeller
+                    ? `${API_BASE}/api/seller/orders`
+                    : `${API_BASE}/api/orders/${user.id}`,
                 {
                     method: "GET",
 
@@ -454,8 +479,8 @@ async function loadOrders() {
         ) {
 
             throw new Error(
-                result.error ||
                 result.message ||
+                result.error ||
                 "Unable to load orders"
             );
 
@@ -532,10 +557,11 @@ async function loadOrders() {
         let totalSpent = 0;
 
 
-        orders.forEach(order => {
+    orders.forEach(order => {
 
             const amount =
                 Number(
+                    order.total_amount_cents ||
                     order.total_cents ||
                     order.total ||
                     0
@@ -576,6 +602,7 @@ async function loadOrders() {
 
                         const total =
                             Number(
+                                order.total_amount_cents ||
                                 order.total_cents ||
                                 order.total ||
                                 0
@@ -617,7 +644,7 @@ async function loadOrders() {
                                 </div>
 
 
-                                <div class="order-bottom">
+                            <div class="order-bottom">
 
                                     <div>
 
@@ -630,6 +657,12 @@ async function loadOrders() {
                                         </div>
 
                                     </div>
+
+                                    ${
+                                        (user.role === "SELLER" || user.role === "ADMIN")
+                                            ? renderSellerStatusControl(order)
+                                            : ""
+                                    }
 
                                 </div>
 
@@ -665,6 +698,78 @@ async function loadOrders() {
 
 }
 
+function getStatusOptions(status) {
+    const transitions = {
+        PENDING: ["CONFIRMED", "CANCELLED"],
+        CONFIRMED: ["SHIPPED", "CANCELLED"],
+        SHIPPED: ["DELIVERED"],
+        DELIVERED: [],
+        CANCELLED: []
+    };
+
+    return [status, ...(transitions[status] || [])]
+        .filter((value, index, values) => values.indexOf(value) === index);
+}
+
+function renderSellerStatusControl(order) {
+    const status = order.status || "PENDING";
+
+    const options = getStatusOptions(status)
+        .map(option => `
+            <option value="${option}" ${option === status ? "selected" : ""}>
+                ${option.charAt(0) + option.slice(1).toLowerCase()}
+            </option>
+        `)
+        .join("");
+
+    return `
+        <select
+            class="seller-status-select"
+            data-order-id="${Number(order.id)}"
+            aria-label="Update order ${Number(order.id)} status"
+        >
+            ${options}
+        </select>
+    `;
+}
+
+async function updateSellerOrderStatus(select) {
+    const orderId = Number(select.dataset.orderId);
+    const newStatus = select.value;
+
+    select.disabled = true;
+
+    try {
+        const response = await fetch(
+            `${API_BASE}/api/orders/${user.id}/${orderId}/status`,
+            {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ status: newStatus })
+            }
+        );
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || "Unable to update order status.");
+        }
+
+        await loadOrders();
+    } catch (error) {
+        alert(error.message || "Unable to update order status.");
+        await loadOrders();
+    }
+}
+
+document.addEventListener("change", event => {
+    if (event.target.matches(".seller-status-select")) {
+        updateSellerOrderStatus(event.target);
+    }
+});
+
 
 /* --------------------------------
    Start
@@ -673,6 +778,36 @@ async function loadOrders() {
 loadOrders();
 
 </script>
+
+<footer class="site-footer">
+    <a class="footer-back-to-top" href="#">Back to top</a>
+    <div class="footer-content">
+        <div class="footer-brand-block">
+            <p class="footer-brand">KaniMart</p>
+            <p class="footer-tagline">A thoughtful marketplace for everyday discoveries.</p>
+        </div>
+        <div class="footer-column">
+            <h3>Shop</h3>
+            <a href="index.html">Marketplace</a>
+            <a href="cart.html">Your cart</a>
+            <a href="orders.html">Your orders</a>
+        </div>
+        <div class="footer-column">
+            <h3>Help</h3>
+            <a href="checkout.html">Checkout</a>
+            <a href="ai.html">KaMa AI</a>
+            <a href="index.html">Account</a>
+        </div>
+        <div class="footer-column">
+            <h3>About</h3>
+            <a href="seller.html">Sell on KaniMart</a>
+            <a href="index.html">Our marketplace</a>
+        </div>
+    </div>
+    <div class="footer-legal">
+        <p>&copy; 2026 KaniMart. All rights reserved.</p>
+    </div>
+</footer>
 
 </body>
 </html>

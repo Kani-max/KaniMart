@@ -31,6 +31,16 @@ public:
         drogon::Options);
 
     ADD_METHOD_TO(
+        OrderController::getSellerOrders,
+        "/api/seller/orders",
+        drogon::Get);
+
+    ADD_METHOD_TO(
+        OrderController::getSellerOrdersOptions,
+        "/api/seller/orders",
+        drogon::Options);
+
+    ADD_METHOD_TO(
         OrderController::getOrder,
         "/api/orders/{userId}/{orderId}",
         drogon::Get);
@@ -67,6 +77,14 @@ public:
         int userId);
 
     void getOrdersOptions(
+        const drogon::HttpRequestPtr& request,
+        std::function<void(const drogon::HttpResponsePtr&)>&& callback);
+
+    void getSellerOrders(
+        const drogon::HttpRequestPtr& request,
+        std::function<void(const drogon::HttpResponsePtr&)>&& callback);
+
+    void getSellerOrdersOptions(
         const drogon::HttpRequestPtr& request,
         std::function<void(const drogon::HttpResponsePtr&)>&& callback);
 

@@ -20,29 +20,15 @@ namespace
 
 std::string getJwtSecret()
 {
-    char* secret = nullptr;
-    std::size_t size = 0;
+    const char* secret = std::getenv("KANIMART_JWT_SECRET");
 
-    if (_dupenv_s(
-            &secret,
-            &size,
-            "KANIMART_JWT_SECRET") != 0 ||
-        secret == nullptr ||
-        size == 0)
+    if (secret == nullptr || *secret == '\0')
     {
-        if (secret != nullptr)
-        {
-            free(secret);
-        }
-
         throw std::runtime_error(
             "KANIMART_JWT_SECRET environment variable is not set");
     }
 
-    std::string result(secret);
-    free(secret);
-
-    return result;
+    return std::string(secret);
 }
 
 } // namespace

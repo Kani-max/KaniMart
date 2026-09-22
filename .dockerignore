@@ -1,0 +1,9 @@
+build
+.vs
+.vscode
+vcpkg_installed
+uploads
+tmp
+.git
+*.log
+config.json

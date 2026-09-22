@@ -387,6 +387,111 @@ void OrderController::getOrders(
     }
 }
 
+void OrderController::getSellerOrders(
+    const drogon::HttpRequestPtr& request,
+    std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+{
+    AuthMiddleware::User user;
+
+    if (!authenticateUser(request, callback, user))
+    {
+        return;
+    }
+
+    if (user.role != "SELLER" && user.role != "ADMIN")
+    {
+        callback(AuthMiddleware::forbidden());
+        return;
+    }
+
+    auto db = drogon::app().getDbClient("kanimart");
+
+    try
+    {
+        drogon::orm::Result rows;
+
+        if (user.role == "ADMIN")
+        {
+            rows = db->execSqlSync(
+                "SELECT o.id, o.status, o.total_amount_cents, "
+                "o.created_at, o.buyer_id, u.email AS buyer_email "
+                "FROM orders o "
+                "JOIN users u ON u.id = o.buyer_id "
+                "ORDER BY o.created_at DESC");
+        }
+        else
+        {
+            rows = db->execSqlSync(
+                "SELECT DISTINCT o.id, o.status, "
+                "o.total_amount_cents, o.created_at, "
+                "o.buyer_id, u.email AS buyer_email "
+                "FROM orders o "
+                "JOIN users u ON u.id = o.buyer_id "
+                "JOIN order_items oi ON oi.order_id = o.id "
+                "JOIN products p ON p.id = oi.product_id "
+                "WHERE p.seller_id = $1 "
+                "ORDER BY o.created_at DESC",
+                user.id);
+        }
+
+        Json::Value orders(Json::arrayValue);
+
+        for (const auto& row : rows)
+        {
+            Json::Value order;
+            order["id"] = row["id"].as<int>();
+            order["status"] = row["status"].as<std::string>();
+            order["total_amount_cents"] =
+                static_cast<Json::Int64>(row["total_amount_cents"].as<int>());
+            order["created_at"] = row["created_at"].as<std::string>();
+            order["buyer_id"] = row["buyer_id"].as<int>();
+            order["buyer_email"] = row["buyer_email"].as<std::string>();
+            orders.append(order);
+        }
+
+        Json::Value data;
+        data["orders"] = orders;
+
+        Json::Value body;
+        body["success"] = true;
+        body["data"] = data;
+        callback(jsonResponse(body));
+    }
+    catch (const std::exception& e)
+    {
+        Json::Value body;
+        body["success"] = false;
+        body["message"] = std::string("Failed to load seller orders: ") + e.what();
+        callback(jsonResponse(body, drogon::k500InternalServerError));
+    }
+}
+
+void OrderController::getSellerOrdersOptions(
+    const drogon::HttpRequestPtr& request,
+    std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+{
+    auto response = drogon::HttpResponse::newHttpResponse();
+    const auto origin = request->getHeader("Origin");
+
+    if (origin == "http://127.0.0.1:5500" ||
+        origin == "http://localhost:5500")
+    {
+        response->addHeader("Access-Control-Allow-Origin", origin);
+        response->addHeader(
+            "Access-Control-Allow-Methods",
+            "GET, POST, PUT, DELETE, OPTIONS");
+        response->addHeader(
+            "Access-Control-Allow-Headers",
+            "Content-Type, Authorization");
+        response->addHeader(
+            "Access-Control-Allow-Credentials",
+            "true");
+    }
+
+    response->setStatusCode(drogon::k200OK);
+    callback(response);
+}
+
 void OrderController::getOrder(
     const drogon::HttpRequestPtr& request,
     std::function<void(const drogon::HttpResponsePtr&)>&& callback,
@@ -554,7 +659,7 @@ void OrderController::updateStatus(
         return;
     }
 
-    if (user.role != "ADMIN")
+    if (user.role != "ADMIN" && user.role != "SELLER")
     {
         callback(AuthMiddleware::forbidden());
         return;
@@ -624,12 +729,25 @@ void OrderController::updateStatus(
 
     try
     {
-        auto rows =
-            db->execSqlSync(
-                "SELECT id, status "
-                "FROM orders "
-                "WHERE id = $1",
+        drogon::orm::Result rows;
+
+        if (user.role == "ADMIN")
+        {
+            rows = db->execSqlSync(
+                "SELECT id, status FROM orders WHERE id = $1",
                 orderId);
+        }
+        else
+        {
+            rows = db->execSqlSync(
+                "SELECT o.id, o.status "
+                "FROM orders o "
+                "JOIN order_items oi ON oi.order_id = o.id "
+                "JOIN products p ON p.id = oi.product_id "
+                "WHERE o.id = $1 AND p.seller_id = $2",
+                orderId,
+                user.id);
+        }
 
         if (rows.empty())
         {

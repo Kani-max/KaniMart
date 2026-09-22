@@ -372,6 +372,220 @@
             color: #6b7280;
         }
 
+        #authSection {
+            min-height: calc(100vh - 56px);
+            margin: 0 -28px;
+            padding: 42px 20px 56px;
+            display: grid;
+            grid-template-columns: minmax(280px, 430px) minmax(340px, 410px);
+            align-items: center;
+            gap: clamp(54px, 8vw, 120px);
+            justify-content: center;
+            background: #f3f5f7;
+        }
+
+        #authSection::before {
+            content: "";
+            position: absolute;
+            inset: 56px 0 auto;
+            height: 1px;
+            background: #d9dee5;
+        }
+
+        .auth-intro {
+            max-width: 390px;
+            color: #172033;
+        }
+
+        .auth-intro-kicker {
+            margin: 0 0 16px;
+            color: #9a6700;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+        }
+
+        .auth-intro h2 {
+            margin: 0 0 18px;
+            max-width: 370px;
+            font-size: clamp(36px, 4vw, 54px);
+            font-weight: 500;
+            letter-spacing: -1.5px;
+            line-height: 1.05;
+        }
+
+        .auth-intro-copy {
+            margin: 0;
+            color: #5f6b7a;
+            font-size: 16px;
+            line-height: 1.65;
+        }
+
+        .auth-benefits {
+            display: grid;
+            gap: 14px;
+            margin: 30px 0 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .auth-benefits li {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            color: #354052;
+            font-size: 13px;
+        }
+
+        .auth-benefits li::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            flex: 0 0 7px;
+            border-radius: 50%;
+            background: #e7a400;
+            box-shadow: 0 0 0 5px rgba(231, 164, 0, 0.13);
+        }
+
+        #authSection .auth-card {
+            width: min(350px, 100%);
+            max-width: none;
+            padding: 26px 25px 22px;
+            background: #ffffff;
+            border: 1px solid #d5d9d9;
+            border-radius: 8px;
+            box-shadow: 0 2px 7px rgba(15, 23, 42, 0.12);
+        }
+
+        #authSection h1,
+        #authSection h2 {
+            color: #172033;
+        }
+
+        #authSection h1 {
+            margin: 0 0 22px;
+            text-align: center;
+            font-size: 26px;
+            letter-spacing: -0.5px;
+        }
+
+        #authSection h2 {
+            margin: 0 0 16px;
+            font-size: 27px;
+            font-weight: 500;
+        }
+
+        #authSection .auth-subtitle {
+            margin: 0 0 20px;
+            color: #5f6b7a;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        #authSection .auth-field {
+            margin-bottom: 18px;
+        }
+
+        #authSection label {
+            display: block;
+            margin: 0 0 7px;
+            color: #172033;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        #authSection input,
+        #authSection select {
+            width: 100%;
+            height: 40px;
+            padding: 0 11px;
+            border: 1px solid #a6a6a6;
+            border-radius: 4px;
+            color: #172033;
+            font-size: 14px;
+        }
+
+        #authSection input:focus,
+        #authSection select:focus {
+            border-color: #e77600;
+            box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.22);
+        }
+
+        #authSection .auth-login-button,
+        #authSection #registerForm .secondary-button {
+            width: 100%;
+            min-height: 40px;
+            margin-top: 4px;
+            border: 1px solid #e7a400;
+            border-radius: 4px;
+            background: #ffd814;
+            color: #172033;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        #authSection .auth-login-button:hover,
+        #authSection #registerForm .secondary-button:hover {
+            background: #f7ca00;
+        }
+
+        #authSection .auth-message {
+            min-height: 18px;
+            margin: 12px 0 0;
+            color: #b12704;
+            font-size: 12px;
+        }
+
+        #authSection .auth-divider {
+            position: relative;
+            margin: 26px 0 16px;
+            border-top: 1px solid #e7e7e7;
+            text-align: center;
+        }
+
+        #authSection .auth-divider span {
+            position: relative;
+            top: -9px;
+            padding: 0 8px;
+            background: #ffffff;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        #authSection .secondary-auth-button,
+        #authSection .create-account-button {
+            width: 100%;
+            min-height: 38px;
+            border: 1px solid #a6a6a6;
+            border-radius: 4px;
+            background: #ffffff;
+            color: #172033;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        #authSection .secondary-auth-button:hover,
+        #authSection .create-account-button:hover {
+            background: #f7fafa;
+        }
+
+        #registerView h2 {
+            font-size: 24px;
+        }
+
+        #registerView .role-description,
+        #registerView .auth-note {
+            color: #5f6b7a;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        body.auth-mode .user-area {
+            display: none;
+        }
+
 
         /* =====================================================
            GENERAL BUTTONS
@@ -450,6 +664,16 @@
                 font-size: 28px;
             }
 
+            #authSection {
+                margin: 0 -16px;
+                grid-template-columns: minmax(340px, 410px);
+                padding-top: 28px;
+            }
+
+            .auth-intro {
+                display: none;
+            }
+
             .product-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
@@ -499,6 +723,15 @@
 
             .hero h2 {
                 font-size: 25px;
+            }
+
+            #authSection {
+                margin: 0 -12px;
+                padding: 22px 14px 40px;
+            }
+
+            #authSection .auth-card {
+                padding: 23px 20px 20px;
             }
 
             .product-grid {
@@ -582,169 +815,85 @@
 
         <section
             id="authSection"
-            class="auth-container"
+            class="auth-section"
         >
 
-            <div class="auth-card">
-
-                <h2>
-                    Welcome to KaniMart
-                </h2>
-
-                <p class="subtitle">
-                    Multi-Seller E-Commerce Marketplace
+            <div class="auth-intro" aria-hidden="true">
+                <p class="auth-intro-kicker">Welcome to KaniMart</p>
+                <h2>Good finds begin with a good sign-in.</h2>
+                <p class="auth-intro-copy">
+                    One account for thoughtful shopping, trusted sellers, and everything waiting in your next order.
                 </p>
-
-
-                <!-- LOGIN -->
-
-                <h3 class="auth-section-title">
-                    Login
-                </h3>
-
-
-                <form id="loginForm">
-
-                    <label for="email">
-                        Email
-                    </label>
-
-                    <input
-                        type="email"
-                        id="email"
-                        placeholder="Enter your email"
-                        autocomplete="email"
-                        required
-                    >
-
-
-                    <label for="password">
-                        Password
-                    </label>
-
-                    <input
-                        type="password"
-                        id="password"
-                        placeholder="Enter your password"
-                        autocomplete="current-password"
-                        required
-                    >
-
-
-                    <button
-                        type="submit"
-                        class="primary-button"
-                    >
-                        Login
-                    </button>
-
-                </form>
-
-
-                <!-- REGISTRATION DIVIDER -->
-
-                <hr class="auth-divider">
-
-
-                <!-- REGISTRATION -->
-
-                <h3 class="auth-section-title">
-                    Create Account
-                </h3>
-
-                <p class="role-description">
-                    Create a Buyer or Seller account.
-                    Administrator accounts are provisioned separately.
-                </p>
-
-
-                <form id="registerForm">
-
-                    <label for="registerName">
-                        Name
-                    </label>
-
-                    <input
-                        type="text"
-                        id="registerName"
-                        placeholder="Enter your name"
-                        autocomplete="name"
-                        required
-                    >
-
-
-                    <label for="registerEmail">
-                        Email
-                    </label>
-
-                    <input
-                        type="email"
-                        id="registerEmail"
-                        placeholder="Enter your email"
-                        autocomplete="email"
-                        required
-                    >
-
-
-                    <label for="registerPassword">
-                        Password
-                    </label>
-
-                    <input
-                        type="password"
-                        id="registerPassword"
-                        placeholder="Minimum 8 characters"
-                        minlength="8"
-                        autocomplete="new-password"
-                        required
-                    >
-
-
-                    <label for="registerRole">
-                        Account Type
-                    </label>
-
-                    <select
-                        id="registerRole"
-                        required
-                    >
-
-                        <option value="BUYER">
-                            Buyer
-                        </option>
-
-                        <option value="SELLER">
-                            Seller
-                        </option>
-
-                    </select>
-
-
-                    <p class="auth-note">
-                        Buyer accounts can shop and place orders.
-                        Seller accounts can manage products.
-                    </p>
-
-
-                    <button
-                        type="submit"
-                        class="secondary-button"
-                    >
-                        Create Account
-                    </button>
-
-                </form>
-
-
-                <p
-                    id="message"
-                    class="message"
-                ></p>
-
+                <ul class="auth-benefits">
+                    <li>Discover products from independent sellers</li>
+                    <li>Keep your cart and orders in one place</li>
+                    <li>Shop with a marketplace built for you</li>
+                </ul>
             </div>
 
-        </section>
+            <div class="auth-card">
+                <!-- LOGIN -->
+                <div id="loginView">
+                    <h1>KaniMart</h1>
+                    <h2>Sign in</h2>
+                    <p class="auth-subtitle">Sign in to continue shopping on KaniMart.</p>
 
+                    <form id="loginForm">
+                        <div class="auth-field">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" placeholder="Enter your email" autocomplete="email" required>
+                        </div>
+                        <div class="auth-field">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password" required>
+                        </div>
+                        <button type="submit" class="auth-login-button">Sign in</button>
+                        <p id="message" class="auth-message"></p>
+                    </form>
+
+                    <div class="auth-divider"><span>New to KaniMart?</span></div>
+                    <button type="button" id="showRegisterButton" class="secondary-auth-button">Create your KaniMart account</button>
+                </div>
+
+                <!-- REGISTRATION -->
+                <div id="registerView" class="hidden">
+                    <h1>KaniMart</h1>
+                    <h2>Create account</h2>
+                    <p class="auth-subtitle">Join KaniMart and start shopping or selling.</p>
+
+                    <form id="registerForm">
+                        <div class="auth-field">
+                            <label for="registerName">Full Name</label>
+                            <input type="text" id="registerName" name="name" placeholder="Enter your name" autocomplete="name" required>
+                        </div>
+                        <div class="auth-field">
+                            <label for="registerEmail">Email</label>
+                            <input type="email" id="registerEmail" name="email" placeholder="Enter your email" autocomplete="email" required>
+                        </div>
+                        <div class="auth-field">
+                            <label for="registerPassword">Password</label>
+                            <input type="password" id="registerPassword" placeholder="Minimum 6 characters" minlength="6" autocomplete="new-password" required>
+                        </div>
+                        <div class="auth-field">
+                            <label for="registerRole">Account Type</label>
+                            <select id="registerRole" required>
+                                <option value="BUYER">Buyer</option>
+                                <option value="SELLER">Seller</option>
+                            </select>
+                        </div>
+                        <p class="auth-note">Buyer accounts can shop and place orders. Seller accounts can manage products.</p>
+                        <button type="submit" class="secondary-button">Create account</button>
+                    </form>
+
+                    <p id="registerMessage" class="auth-message"></p>
+                    <div class="auth-divider"><span>Already have an account?</span></div>
+                    <button type="button" id="showLoginButton" class="create-account-button">Back to sign in</button>
+                </div>
+
+        </div>
+
+    </div>
+</section>
 
         <!-- =================================================
              MARKETPLACE
@@ -885,7 +1034,72 @@
     <!-- JAVASCRIPT -->
 
     <script src="app.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
 
+    const loginView = document.getElementById("loginView");
+    const registerView = document.getElementById("registerView");
+
+    const showRegisterButton =
+        document.getElementById("showRegisterButton");
+
+    const showLoginButton =
+        document.getElementById("showLoginButton");
+
+
+    // Create Account
+    if (showRegisterButton) {
+        showRegisterButton.addEventListener("click", function (event) {
+            event.preventDefault();
+
+            loginView.classList.add("hidden");
+            registerView.classList.remove("hidden");
+        });
+    }
+
+
+    // Back to Login
+    if (showLoginButton) {
+        showLoginButton.addEventListener("click", function (event) {
+            event.preventDefault();
+
+            registerView.classList.add("hidden");
+            loginView.classList.remove("hidden");
+        });
+    }
+
+});
+</script>
+
+<footer class="site-footer">
+    <a class="footer-back-to-top" href="#">Back to top</a>
+    <div class="footer-content">
+        <div class="footer-brand-block">
+            <p class="footer-brand">KaniMart</p>
+            <p class="footer-tagline">A thoughtful marketplace for everyday discoveries.</p>
+        </div>
+        <div class="footer-column">
+            <h3>Shop</h3>
+            <a href="index.html">Marketplace</a>
+            <a href="cart.html">Your cart</a>
+            <a href="orders.html">Your orders</a>
+        </div>
+        <div class="footer-column">
+            <h3>Help</h3>
+            <a href="checkout.html">Checkout</a>
+            <a href="ai.html">KaMa AI</a>
+            <a href="index.html">Account</a>
+        </div>
+        <div class="footer-column">
+            <h3>About</h3>
+            <a href="seller.html">Sell on KaniMart</a>
+            <a href="index.html">Our marketplace</a>
+        </div>
+    </div>
+    <div class="footer-legal">
+        <p>&copy; 2026 KaniMart. All rights reserved.</p>
+    </div>
+</footer>
 </body>
 
 </html>

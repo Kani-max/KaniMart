@@ -11,6 +11,87 @@ body {
     min-height: 100vh;
     background: #f5f7fb;
 }
+.site-footer {
+    width: 100%;
+    margin-top: 40px;
+    border-top: 4px solid #f0b429;
+    background: linear-gradient(115deg, #102b43 0%, #123b55 52%, #0d3047 100%);
+    color: #cbd5e1;
+}
+.footer-back-to-top {
+    display: block;
+    padding: 14px 20px;
+    background: #1c5a7d;
+    color: #ffffff;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+.footer-back-to-top:hover {
+    background: #24739b;
+}
+.footer-content {
+    width: min(1080px, 92%);
+    margin: 0 auto;
+    padding: 38px 0 30px;
+    display: grid;
+    grid-template-columns: 1.4fr repeat(3, 1fr);
+    gap: 34px;
+}
+.footer-brand {
+    margin: 0 0 10px;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+}
+.footer-tagline {
+    max-width: 220px;
+    margin: 0;
+    color: #9eacba;
+    font-size: 12px;
+    line-height: 1.6;
+}
+.footer-column h3 {
+    margin: 0 0 12px;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+}
+.footer-column a {
+    display: block;
+    width: fit-content;
+    margin: 0 0 9px;
+    color: #b9c5d1;
+    font-size: 12px;
+    text-decoration: none;
+}
+.footer-column a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+.footer-legal {
+    padding: 18px 20px 20px;
+    border-top: 1px solid rgba(193, 216, 230, 0.2);
+    background: rgba(5, 25, 40, 0.22);
+    color: #9eacba;
+    text-align: center;
+    font-size: 11px;
+}
+.footer-legal p {
+    margin: 0;
+}
+@media (max-width: 650px) {
+    .footer-content {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 28px 20px;
+    }
+    .footer-brand-block {
+        grid-column: 1 / -1;
+    }
+}
 button,
 input,
 select {
@@ -894,4 +975,803 @@ th {
     .product-image {
         height: 210px;
     }
+}
+/* =========================================================
+   KANIMART PRODUCT CARD - FINAL DESIGN
+   ========================================================= */
+
+.product-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.08);
+
+    display: flex;
+    flex-direction: column;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+}
+
+
+/* PRODUCT IMAGE */
+
+.product-card-image {
+    width: 100%;
+    height: 165px;
+
+    display: block;
+
+    object-fit: cover;
+    background: #f3f4f6;
+}
+
+
+/* CARD BODY */
+
+.product-card-body {
+    padding: 12px;
+
+    display: flex;
+    flex-direction: column;
+
+    flex: 1;
+}
+
+
+/* CATEGORY */
+
+.product-card-category {
+    display: inline-block;
+
+    width: fit-content;
+
+    padding: 4px 8px;
+
+    border-radius: 6px;
+
+    background: #eef2ff;
+    color: #4338ca;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    margin-bottom: 7px;
+}
+
+
+/* PRODUCT NAME */
+
+.product-card-title {
+    margin: 0 0 6px;
+
+    font-size: 15px;
+    line-height: 1.35;
+
+    color: #111827;
+}
+
+
+/* DESCRIPTION */
+
+.product-card-description {
+    margin: 0 0 10px;
+
+    min-height: 34px;
+
+    color: #64748b;
+
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+
+/* PRICE + STOCK */
+
+.product-card-bottom {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 8px;
+
+    margin-bottom: 7px;
+}
+
+.product-card-price {
+    color: #111827;
+
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.product-stock {
+    font-size: 11px;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+.product-stock.in-stock {
+    color: #059669;
+
+    background: #ecfdf5;
+
+    padding: 4px 7px;
+
+    border-radius: 999px;
+}
+
+.product-stock.out-of-stock {
+    color: #dc2626;
+
+    background: #fef2f2;
+
+    padding: 4px 7px;
+
+    border-radius: 999px;
+}
+
+
+/* =========================================================
+   BLUE ADD TO CART BUTTON
+   ========================================================= */
+
+.add-to-cart-button {
+    width: 100%;
+
+    margin-top: auto;
+
+    padding: 10px 14px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease;
+}
+
+.add-to-cart-button:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.add-to-cart-button:active {
+    transform: translateY(0);
+}
+
+.add-to-cart-button:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+}
+
+
+/* =========================================================
+   REVIEWS
+   ========================================================= */
+
+.product-reviews {
+    min-height: 25px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    margin-bottom: 9px;
+
+    font-size: 12px;
+}
+
+.review-summary {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+}
+
+.review-stars {
+    color: #f59e0b;
+
+    font-size: 16px;
+    letter-spacing: 1px;
+}
+
+.review-average {
+    color: #374151;
+    font-weight: 700;
+}
+
+.review-count {
+    color: #64748b;
+}
+
+.review-empty {
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+.review-loading {
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+
+/* WRITE REVIEW */
+
+.review-button {
+    margin-left: auto;
+
+    border: none;
+
+    background: transparent;
+
+    color: #2563eb;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.review-button:hover {
+    text-decoration: underline;
+}
+/* =========================================================
+   FINAL HOME PAGE LAYOUT
+   ========================================================= */
+
+body {
+    background: #f4f6fa;
+}
+
+.page {
+    width: 100%;
+    max-width: none;
+
+    padding: 0 30px 40px;
+}
+
+
+/* HERO */
+
+.hero {
+    width: 100%;
+
+    margin: 14px 0 20px;
+
+    min-height: 132px;
+
+    padding: 28px 30px;
+
+    border-radius: 15px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #1e2a68,
+            #4338ca
+        );
+
+    color: white;
+}
+
+.hero h1,
+.hero h2 {
+    margin: 0 0 8px;
+
+    font-size: 32px;
+
+    color: white;
+}
+
+.hero p {
+    margin: 0;
+
+    color: #e0e7ff;
+
+    font-size: 15px;
+}
+
+
+/* SEARCH AREA */
+
+.toolbar {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        220px
+        auto;
+
+    gap: 10px;
+
+    margin: 20px 0;
+}
+
+.toolbar input,
+.toolbar select {
+    height: 38px;
+
+    border-radius: 8px;
+
+    padding: 0 12px;
+}
+
+
+/* PRODUCTS HEADER */
+
+.section-heading {
+    margin: 10px 0 12px;
+
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: space-between;
+}
+
+.section-heading h2 {
+    margin: 0;
+
+    font-size: 24px;
+}
+
+.section-heading p {
+    margin: 3px 0 0;
+
+    color: #64748b;
+
+    font-size: 12px;
+}
+
+
+/* CART / CHECKOUT / ORDERS */
+
+#cartButton,
+#checkoutButton,
+#orderHistoryButton {
+    height: 36px;
+
+    padding: 0 14px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #111827;
+
+    color: white;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: background 0.2s ease;
+}
+
+#cartButton:hover,
+#checkoutButton:hover,
+#orderHistoryButton:hover {
+    background: #1f2937;
+}
+
+
+/* PRODUCT GRID */
+
+.product-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 16px;
+}
+
+
+/* DESKTOP */
+
+@media (min-width: 1200px) {
+
+    .product-grid {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+}
+
+
+/* TABLET */
+
+@media (max-width: 900px) {
+
+    .product-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+
+    .page {
+        padding: 0 12px 25px;
+    }
+
+    .toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero {
+        padding: 22px;
+
+        min-height: auto;
+    }
+
+    .hero h1,
+    .hero h2 {
+        font-size: 26px;
+    }
+}
+/* =========================================================
+   KANIMART ELEGANT LOGIN PAGE
+   ========================================================= */
+
+.auth-section {
+    min-height: calc(100vh - 56px);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 40px 20px;
+
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(79, 70, 229, 0.12),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #f8fafc,
+            #eef2ff
+        );
+}
+
+
+/* LOGIN CARD */
+
+.auth-card {
+    width: 100%;
+    max-width: 430px;
+
+    padding: 36px;
+
+    background: rgba(255, 255, 255, 0.97);
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 20px 60px rgba(15, 23, 42, 0.12);
+
+    animation: authCardAppear 0.35s ease;
+}
+
+@keyframes authCardAppear {
+
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* BRAND */
+
+.auth-brand {
+    text-align: center;
+
+    margin-bottom: 25px;
+}
+
+.auth-logo {
+    width: 52px;
+    height: 52px;
+
+    margin: 0 auto 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 15px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #4f46e5
+        );
+
+    color: white;
+
+    font-size: 25px;
+
+    box-shadow:
+        0 8px 20px rgba(37, 99, 235, 0.25);
+}
+
+.auth-brand h1 {
+    margin: 0;
+
+    color: #111827;
+
+    font-size: 25px;
+    font-weight: 800;
+}
+
+
+/* HEADINGS */
+
+.auth-card h2 {
+    margin: 0 0 8px;
+
+    text-align: center;
+
+    color: #111827;
+
+    font-size: 25px;
+}
+
+.auth-subtitle {
+    margin: 0 0 28px;
+
+    text-align: center;
+
+    color: #6b7280;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+
+/* FORM */
+
+.auth-field {
+    margin-bottom: 17px;
+}
+
+.auth-field label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #374151;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.auth-field input,
+.auth-field select {
+    width: 100%;
+
+    height: 46px;
+
+    padding: 0 13px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 9px;
+
+    background: #ffffff;
+
+    color: #111827;
+
+    font-size: 13px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.auth-field input::placeholder {
+    color: #9ca3af;
+}
+
+.auth-field input:focus,
+.auth-field select:focus {
+    outline: none;
+
+    border-color: #4f46e5;
+
+    box-shadow:
+        0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+
+/* SIGN IN BUTTON */
+
+.auth-login-button {
+    width: 100%;
+
+    height: 46px;
+
+    margin-top: 5px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #4f46e5
+        );
+
+    color: white;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 7px 18px rgba(37, 99, 235, 0.22);
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.auth-login-button:hover {
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 10px 22px rgba(37, 99, 235, 0.28);
+}
+
+.auth-login-button:active {
+    transform: translateY(0);
+}
+
+
+/* MESSAGE */
+
+.auth-message {
+    min-height: 20px;
+
+    margin: 12px 0 0;
+
+    text-align: center;
+
+    color: #dc2626;
+
+    font-size: 12px;
+}
+
+
+/* DIVIDER */
+
+.auth-divider {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin: 25px 0 15px;
+
+    color: #9ca3af;
+
+    font-size: 11px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: "";
+
+    flex: 1;
+
+    height: 1px;
+
+    background: #e5e7eb;
+}
+
+
+/* CREATE ACCOUNT */
+
+.create-account-button {
+    width: 100%;
+
+    height: 44px;
+
+    border: 1px solid #c7d2fe;
+
+    border-radius: 9px;
+
+    background: #eef2ff;
+
+    color: #4338ca;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.create-account-button:hover {
+    background: #e0e7ff;
+
+    border-color: #a5b4fc;
+}
+
+
+/* HIDDEN */
+
+.hidden {
+    display: none !important;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 520px) {
+
+    .auth-section {
+        padding: 25px 15px;
+    }
+
+    .auth-card {
+        padding: 28px 22px;
+
+        border-radius: 16px;
+    }
+
+    .auth-card h2 {
+        font-size: 22px;
+    }
+}
+.hidden {
+    display: none !important;
 }

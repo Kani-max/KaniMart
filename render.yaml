@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: kanimart
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kanimart-db
+          property: connectionString
+      - key: KANIMART_JWT_SECRET
+        generateValue: true
+      - key: KANIMART_ALLOWED_ORIGINS
+        value: ""
+      - key: OPENAI_API_KEY
+        sync: false
+
+databases:
+  - name: kanimart-db
+    plan: free
+    databaseName: kanimart
+    user: kanimart

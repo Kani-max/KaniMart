@@ -3,7 +3,12 @@
    KaniMart AI Assistant
    ========================================================= */
 
-const API_BASE = "http://127.0.0.1:8080";
+const API_BASE = window.KANIMART_API_BASE ||
+    (window.location.protocol === "http:" &&
+        (window.location.hostname === "127.0.0.1" ||
+            window.location.hostname === "localhost")
+        ? "http://127.0.0.1:8080"
+        : "");
 
 const TOKEN_KEY = "kanimart_token";
 const USER_KEY = "kanimart_user";
