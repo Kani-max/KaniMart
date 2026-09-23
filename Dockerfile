@@ -22,7 +22,7 @@ FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libssl3 libpq5 libpq-dev libjsoncpp25 uuid-runtime zlib1g python3 postgresql-client ca-certificates \
+    libssl3 libpq5 libpq-dev libjsoncpp25 uuid-runtime zlib1g python3 postgresql-client ca-certificates python3  \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
