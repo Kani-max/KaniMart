@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/vcpkg
-RUN git clone --depth 1 https://github.com/microsoft/vcpkg.git . \
+RUN git clone https://github.com/microsoft/vcpkg.git . \
     && ./bootstrap-vcpkg.sh -disableMetrics
 
 WORKDIR /src
