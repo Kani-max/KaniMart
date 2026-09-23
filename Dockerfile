@@ -2,7 +2,7 @@ FROM ubuntu:24.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential make cmake git curl zip unzip tar pkg-config ca-certificates python3 \
+    build-essential make cmake git curl zip unzip tar pkg-config ca-certificates python3 bison \
     libssl-dev libjsoncpp-dev libpq-dev uuid-dev zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
