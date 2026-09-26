@@ -682,44 +682,55 @@ void ProductController::updateProduct(
                 (*json)["image_url"].asString();
         }
 
-        drogon::orm::Result result;
+        const auto result =
+            imageUrl.empty()
+                ? db->execSqlSync(
+                      "UPDATE products "
+                      "SET name = $1, description = $2, "
+                      "price_cents = $3, stock_qty = $4, "
+                      "category = $5, image_url = NULL "
+                      "WHERE id = $6 "
+                      "RETURNING id, seller_id, name, description, "
+                      "price_cents, stock_qty, category, image_url, "
+                      "created_at",
+                      name,
+                      description,
+                      priceCents,
+                      stockQty,
+                      category,
+                      productId)
+                : db->execSqlSync(
+                      "UPDATE products "
+                      "SET name = $1, description = $2, "
+                      "price_cents = $3, stock_qty = $4, "
+                      "category = $5, image_url = $6 "
+                      "WHERE id = $7 "
+                      "RETURNING id, seller_id, name, description, "
+                      "price_cents, stock_qty, category, image_url, "
+                      "created_at",
+                      name,
+                      description,
+                      priceCents,
+                      stockQty,
+                      category,
+                      imageUrl,
+                      productId);
 
-        if (imageUrl.empty())
+        if (result.empty())
         {
-            result = db->execSqlSync(
-                "UPDATE products "
-                "SET name = $1, description = $2, "
-                "price_cents = $3, stock_qty = $4, "
-                "category = $5, image_url = NULL "
-                "WHERE id = $6 "
-                "RETURNING id, seller_id, name, description, "
-                "price_cents, stock_qty, category, image_url, "
-                "created_at",
-                name,
-                description,
-                priceCents,
-                stockQty,
-                category,
-                productId);
-        }
-        else
-        {
-            result = db->execSqlSync(
-                "UPDATE products "
-                "SET name = $1, description = $2, "
-                "price_cents = $3, stock_qty = $4, "
-                "category = $5, image_url = $6 "
-                "WHERE id = $7 "
-                "RETURNING id, seller_id, name, description, "
-                "price_cents, stock_qty, category, image_url, "
-                "created_at",
-                name,
-                description,
-                priceCents,
-                stockQty,
-                category,
-                imageUrl,
-                productId);
+            Json::Value body;
+
+            body["success"] = false;
+            body["message"] = "Product update failed";
+
+            auto response =
+                drogon::HttpResponse::newHttpJsonResponse(body);
+
+            response->setStatusCode(
+                drogon::k500InternalServerError);
+
+            callback(response);
+            return;
         }
 
         const auto& row =
