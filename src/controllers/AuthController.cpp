@@ -6,6 +6,7 @@
 #include "../services/JwtService.h"
 
 #include <array>
+#include <iostream>
 #include <string>
 
 namespace kani::kanimart
@@ -14,19 +15,10 @@ namespace kani::kanimart
 namespace
 {
 
-// ============================================================
-// Initialize libsodium
-// ============================================================
-
 bool initializeSodium()
 {
     return sodium_init() >= 0;
 }
-
-
-// ============================================================
-// Hash password using Argon2id
-// ============================================================
 
 bool hashPassword(
     const std::string& password,
@@ -46,14 +38,8 @@ bool hashPassword(
     }
 
     passwordHash = hash.data();
-
     return true;
 }
-
-
-// ============================================================
-// Verify password against Argon2id hash
-// ============================================================
 
 bool verifyPassword(
     const std::string& passwordHash,
@@ -67,11 +53,6 @@ bool verifyPassword(
 
 } // namespace
 
-
-// ============================================================
-// REGISTER USER
-// ============================================================
-
 void AuthController::registerUser(
     const drogon::HttpRequestPtr& request,
     std::function<void(
@@ -80,11 +61,6 @@ void AuthController::registerUser(
     try
     {
         Json::Value response;
-
-
-        // ----------------------------------------------------
-        // Initialize password security
-        // ----------------------------------------------------
 
         if (!initializeSodium())
         {
@@ -100,16 +76,11 @@ void AuthController::registerUser(
                 drogon::k500InternalServerError);
 
             callback(resp);
-
             return;
         }
 
-
-        // ----------------------------------------------------
-        // Read JSON
-        // ----------------------------------------------------
-
-        auto json = request->getJsonObject();
+        auto json =
+            request->getJsonObject();
 
         if (!json)
         {
@@ -125,14 +96,8 @@ void AuthController::registerUser(
                 drogon::k400BadRequest);
 
             callback(resp);
-
             return;
         }
-
-
-        // ----------------------------------------------------
-        // Read registration fields
-        // ----------------------------------------------------
 
         const std::string name =
             (*json)["name"].asString();
@@ -145,11 +110,6 @@ void AuthController::registerUser(
 
         const std::string role =
             (*json)["role"].asString();
-
-
-        // ----------------------------------------------------
-        // Validate required fields
-        // ----------------------------------------------------
 
         if (name.empty() ||
             email.empty() ||
@@ -168,14 +128,8 @@ void AuthController::registerUser(
                 drogon::k400BadRequest);
 
             callback(resp);
-
             return;
         }
-
-
-        // ----------------------------------------------------
-        // Validate password length
-        // ----------------------------------------------------
 
         if (password.size() < 8)
         {
@@ -191,18 +145,8 @@ void AuthController::registerUser(
                 drogon::k400BadRequest);
 
             callback(resp);
-
             return;
         }
-
-
-        // ----------------------------------------------------
-        // Validate registration role
-        //
-        // IMPORTANT:
-        // ADMIN is intentionally NOT allowed through
-        // public registration.
-        // ----------------------------------------------------
 
         if (role != "BUYER" &&
             role != "SELLER")
@@ -219,14 +163,8 @@ void AuthController::registerUser(
                 drogon::k400BadRequest);
 
             callback(resp);
-
             return;
         }
-
-
-        // ----------------------------------------------------
-        // Hash password
-        // ----------------------------------------------------
 
         std::string passwordHash;
 
@@ -246,56 +184,30 @@ void AuthController::registerUser(
                 drogon::k500InternalServerError);
 
             callback(resp);
-
             return;
         }
-
-
-        // ----------------------------------------------------
-        // Database connection
-        // ----------------------------------------------------
 
         auto db =
             drogon::app().getDbClient(
                 "kanimart");
-
-
-        // ----------------------------------------------------
-        // Insert user
-        //
-        // Parameterized SQL prevents SQL injection.
-        // ----------------------------------------------------
 
         auto result = db->execSqlSync(
             "INSERT INTO users "
             "(name, email, password_hash, role) "
             "VALUES ($1, $2, $3, $4) "
             "RETURNING id, name, email, role",
-
             name,
             email,
             passwordHash,
             role
         );
 
-
-        // ----------------------------------------------------
-        // Read inserted user
-        // ----------------------------------------------------
-
         const auto& row =
             result[0];
 
-
-        // ----------------------------------------------------
-        // Build successful response
-        // ----------------------------------------------------
-
         response["success"] = true;
-
         response["message"] =
             "Registration successful";
-
 
         response["data"]["user"]["id"] =
             row["id"].as<int>();
@@ -309,11 +221,6 @@ void AuthController::registerUser(
         response["data"]["user"]["role"] =
             row["role"].as<std::string>();
 
-
-        // ----------------------------------------------------
-        // Return HTTP 201
-        // ----------------------------------------------------
-
         auto resp =
             drogon::HttpResponse::newHttpJsonResponse(
                 response);
@@ -323,12 +230,6 @@ void AuthController::registerUser(
 
         callback(resp);
     }
-
-
-    // ========================================================
-    // Database / unexpected error
-    // ========================================================
-
     catch (const std::exception& exception)
     {
         Json::Value response;
@@ -337,11 +238,6 @@ void AuthController::registerUser(
 
         const std::string error =
             exception.what();
-
-
-        // ----------------------------------------------------
-        // Duplicate email
-        // ----------------------------------------------------
 
         if (error.find("users_email_key")
             != std::string::npos)
@@ -355,11 +251,9 @@ void AuthController::registerUser(
                 "Database error";
         }
 
-
         auto resp =
             drogon::HttpResponse::newHttpJsonResponse(
                 response);
-
 
         if (error.find("users_email_key")
             != std::string::npos)
@@ -373,15 +267,9 @@ void AuthController::registerUser(
                 drogon::k500InternalServerError);
         }
 
-
         callback(resp);
     }
 }
-
-
-// ============================================================
-// LOGIN
-// ============================================================
 
 void AuthController::login(
     const drogon::HttpRequestPtr& request,
@@ -391,11 +279,6 @@ void AuthController::login(
     try
     {
         Json::Value response;
-
-
-        // ----------------------------------------------------
-        // Initialize libsodium
-        // ----------------------------------------------------
 
         if (!initializeSodium())
         {
@@ -411,14 +294,8 @@ void AuthController::login(
                 drogon::k500InternalServerError);
 
             callback(resp);
-
             return;
         }
-
-
-        // ----------------------------------------------------
-        // Read JSON
-        // ----------------------------------------------------
 
         auto json =
             request->getJsonObject();
@@ -437,25 +314,14 @@ void AuthController::login(
                 drogon::k400BadRequest);
 
             callback(resp);
-
             return;
         }
-
-
-        // ----------------------------------------------------
-        // Read login fields
-        // ----------------------------------------------------
 
         const std::string email =
             (*json)["email"].asString();
 
         const std::string password =
             (*json)["password"].asString();
-
-
-        // ----------------------------------------------------
-        // Validate login fields
-        // ----------------------------------------------------
 
         if (email.empty() ||
             password.empty())
@@ -472,23 +338,12 @@ void AuthController::login(
                 drogon::k400BadRequest);
 
             callback(resp);
-
             return;
         }
-
-
-        // ----------------------------------------------------
-        // Database connection
-        // ----------------------------------------------------
 
         auto db =
             drogon::app().getDbClient(
                 "kanimart");
-
-
-        // ----------------------------------------------------
-        // Find user
-        // ----------------------------------------------------
 
         auto result = db->execSqlSync(
             "SELECT id, name, email, password_hash, role "
@@ -496,11 +351,6 @@ void AuthController::login(
             "WHERE email = $1",
             email
         );
-
-
-        // ----------------------------------------------------
-        // User not found
-        // ----------------------------------------------------
 
         if (result.empty())
         {
@@ -516,27 +366,15 @@ void AuthController::login(
                 drogon::k401Unauthorized);
 
             callback(resp);
-
             return;
         }
-
-
-        // ----------------------------------------------------
-        // Read database row
-        // ----------------------------------------------------
 
         const auto& row =
             result[0];
 
-
         const std::string storedPasswordHash =
             row["password_hash"]
                 .as<std::string>();
-
-
-        // ----------------------------------------------------
-        // Verify Argon2id password
-        // ----------------------------------------------------
 
         if (!verifyPassword(
                 storedPasswordHash,
@@ -554,66 +392,38 @@ void AuthController::login(
                 drogon::k401Unauthorized);
 
             callback(resp);
-
             return;
         }
-
-
-        // ----------------------------------------------------
-        // Read user identity
-        // ----------------------------------------------------
 
         const int userId =
             row["id"].as<int>();
 
-
         const std::string role =
             row["role"].as<std::string>();
-
-
-        // ----------------------------------------------------
-        // Generate JWT
-        // ----------------------------------------------------
 
         const std::string token =
             JwtService::generateToken(
                 userId,
                 role);
 
-
-        // ----------------------------------------------------
-        // Successful response
-        // ----------------------------------------------------
-
         response["success"] = true;
-
         response["message"] =
             "Login successful";
-
 
         response["data"]["token"] =
             token;
 
-
         response["data"]["user"]["id"] =
             userId;
-
 
         response["data"]["user"]["name"] =
             row["name"].as<std::string>();
 
-
         response["data"]["user"]["email"] =
             row["email"].as<std::string>();
 
-
         response["data"]["user"]["role"] =
             role;
-
-
-        // ----------------------------------------------------
-        // Return HTTP 200
-        // ----------------------------------------------------
 
         auto resp =
             drogon::HttpResponse::newHttpJsonResponse(
@@ -624,21 +434,19 @@ void AuthController::login(
 
         callback(resp);
     }
-
-
-    // ========================================================
-    // Unexpected error
-    // ========================================================
-
     catch (const std::exception& exception)
     {
+        std::cerr
+            << "[LOGIN ERROR] "
+            << exception.what()
+            << std::endl;
+
         Json::Value response;
 
         response["success"] = false;
 
         response["error"] =
             exception.what();
-
 
         auto resp =
             drogon::HttpResponse::newHttpJsonResponse(
@@ -651,11 +459,6 @@ void AuthController::login(
     }
 }
 
-
-// ============================================================
-// CORS OPTIONS
-// ============================================================
-
 void AuthController::options(
     const drogon::HttpRequestPtr& request,
     std::function<void(
@@ -664,10 +467,8 @@ void AuthController::options(
     auto response =
         drogon::HttpResponse::newHttpResponse();
 
-
     const auto origin =
         request->getHeader("Origin");
-
 
     if (origin == "http://127.0.0.1:5500" ||
         origin == "http://localhost:5500")
@@ -676,26 +477,21 @@ void AuthController::options(
             "Access-Control-Allow-Origin",
             origin);
 
-
         response->addHeader(
             "Access-Control-Allow-Methods",
             "GET, POST, PUT, DELETE, OPTIONS");
 
-
         response->addHeader(
             "Access-Control-Allow-Headers",
             "Content-Type, Authorization");
-
 
         response->addHeader(
             "Access-Control-Allow-Credentials",
             "true");
     }
 
-
     response->setStatusCode(
         drogon::k200OK);
-
 
     callback(response);
 }
