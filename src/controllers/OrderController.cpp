@@ -408,20 +408,34 @@ void OrderController::getSellerOrders(
 
     try
     {
-        drogon::orm::Result rows;
+        Json::Value orders(Json::arrayValue);
 
         if (user.role == "ADMIN")
         {
-            rows = db->execSqlSync(
+            auto rows = db->execSqlSync(
                 "SELECT o.id, o.status, o.total_amount_cents, "
                 "o.created_at, o.buyer_id, u.email AS buyer_email "
                 "FROM orders o "
                 "JOIN users u ON u.id = o.buyer_id "
                 "ORDER BY o.created_at DESC");
+
+            for (const auto& row : rows)
+            {
+                Json::Value order;
+                order["id"] = row["id"].as<int>();
+                order["status"] = row["status"].as<std::string>();
+                order["total_amount_cents"] =
+                    static_cast<Json::Int64>(
+                        row["total_amount_cents"].as<int>());
+                order["created_at"] = row["created_at"].as<std::string>();
+                order["buyer_id"] = row["buyer_id"].as<int>();
+                order["buyer_email"] = row["buyer_email"].as<std::string>();
+                orders.append(order);
+            }
         }
         else
         {
-            rows = db->execSqlSync(
+            auto rows = db->execSqlSync(
                 "SELECT DISTINCT o.id, o.status, "
                 "o.total_amount_cents, o.created_at, "
                 "o.buyer_id, u.email AS buyer_email "
@@ -432,21 +446,20 @@ void OrderController::getSellerOrders(
                 "WHERE p.seller_id = $1 "
                 "ORDER BY o.created_at DESC",
                 user.id);
-        }
 
-        Json::Value orders(Json::arrayValue);
-
-        for (const auto& row : rows)
-        {
-            Json::Value order;
-            order["id"] = row["id"].as<int>();
-            order["status"] = row["status"].as<std::string>();
-            order["total_amount_cents"] =
-                static_cast<Json::Int64>(row["total_amount_cents"].as<int>());
-            order["created_at"] = row["created_at"].as<std::string>();
-            order["buyer_id"] = row["buyer_id"].as<int>();
-            order["buyer_email"] = row["buyer_email"].as<std::string>();
-            orders.append(order);
+            for (const auto& row : rows)
+            {
+                Json::Value order;
+                order["id"] = row["id"].as<int>();
+                order["status"] = row["status"].as<std::string>();
+                order["total_amount_cents"] =
+                    static_cast<Json::Int64>(
+                        row["total_amount_cents"].as<int>());
+                order["created_at"] = row["created_at"].as<std::string>();
+                order["buyer_id"] = row["buyer_id"].as<int>();
+                order["buyer_email"] = row["buyer_email"].as<std::string>();
+                orders.append(order);
+            }
         }
 
         Json::Value data;
@@ -729,17 +742,34 @@ void OrderController::updateStatus(
 
     try
     {
-        drogon::orm::Result rows;
+        std::string currentStatus;
 
         if (user.role == "ADMIN")
         {
-            rows = db->execSqlSync(
+            auto rows = db->execSqlSync(
                 "SELECT id, status FROM orders WHERE id = $1",
                 orderId);
+
+            if (rows.empty())
+            {
+                Json::Value body;
+                body["success"] = false;
+                body["message"] = "Order not found";
+
+                callback(
+                    jsonResponse(
+                        body,
+                        drogon::k404NotFound));
+
+                return;
+            }
+
+            currentStatus =
+                rows[0]["status"].as<std::string>();
         }
         else
         {
-            rows = db->execSqlSync(
+            auto rows = db->execSqlSync(
                 "SELECT o.id, o.status "
                 "FROM orders o "
                 "JOIN order_items oi ON oi.order_id = o.id "
@@ -747,26 +777,24 @@ void OrderController::updateStatus(
                 "WHERE o.id = $1 AND p.seller_id = $2",
                 orderId,
                 user.id);
+
+            if (rows.empty())
+            {
+                Json::Value body;
+                body["success"] = false;
+                body["message"] = "Order not found";
+
+                callback(
+                    jsonResponse(
+                        body,
+                        drogon::k404NotFound));
+
+                return;
+            }
+
+            currentStatus =
+                rows[0]["status"].as<std::string>();
         }
-
-        if (rows.empty())
-        {
-            Json::Value body;
-
-            body["success"] = false;
-            body["message"] =
-                "Order not found";
-
-            callback(
-                jsonResponse(
-                    body,
-                    drogon::k404NotFound));
-
-            return;
-        }
-
-        const std::string currentStatus =
-            rows[0]["status"].as<std::string>();
 
         bool validTransition = false;
 
@@ -795,7 +823,6 @@ void OrderController::updateStatus(
         if (!validTransition)
         {
             Json::Value body;
-
             body["success"] = false;
             body["message"] =
                 "Invalid status transition";
@@ -839,7 +866,6 @@ void OrderController::updateStatus(
             row["created_at"].as<std::string>();
 
         Json::Value body;
-
         body["success"] = true;
         body["data"] = data;
 
