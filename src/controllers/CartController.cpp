@@ -109,16 +109,16 @@ void CartController::getCart(
             const auto subtotal =
                 row["subtotal_cents"].as<long long>();
 
-            item["subtotal_cents"] = subtotal;
-            totalCents += subtotal;
+                item["subtotal_cents"] = static_cast<Json::Int64>(subtotal);
+                totalCents += subtotal;
 
             items.append(item);
         }
 
         json["success"] = true;
         json["data"]["items"] = items;
-        json["data"]["total_cents"] = totalCents;
-
+        json["data"]["total_cents"] = static_cast<Json::Int64>(totalCents);
+        
         callback(
             drogon::HttpResponse::newHttpJsonResponse(json));
     }
