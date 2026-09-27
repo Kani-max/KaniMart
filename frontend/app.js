@@ -3,7 +3,7 @@ const API_BASE = window.KANIMART_API_BASE ||
         (window.location.hostname === "127.0.0.1" ||
             window.location.hostname === "localhost")
         ? "http://127.0.0.1:8080"
-        : "");
+        : "https://kanimart-gmvv.onrender.com");
 
 const $ = (id) => document.getElementById(id);
 
@@ -690,12 +690,12 @@ function getFilteredProducts() {
             ? searchInput.value
                 .trim()
                 .toLowerCase()
-            : "";
+            : "https://kanimart-gmvv.onrender.com";
 
     const selectedCategory =
         categoryFilter
             ? categoryFilter.value
-            : "";
+            : "https://kanimart-gmvv.onrender.com";
 
 
     return products.filter(product => {
