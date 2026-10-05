@@ -206,36 +206,25 @@ bool configureProductionDatabase()
 
 bool loadProductionConfig()
 {
+    /*
+     * Render does not provide config.json.
+     * Production configuration comes from environment variables:
+     * - DATABASE_URL for PostgreSQL
+     * - PORT for the HTTP listener
+     */
+
     Json::Value config;
 
-    std::ifstream file("config.json");
+    const char* renderPort = std::getenv("PORT");
 
-    if (!file.is_open())
-    {
-        std::cerr
-            << "[ERROR] Could not open config.json."
-            << std::endl;
-
-        return false;
-    }
-
-    file >> config;
-    file.close();
-
-    /*
-     * Keep the existing listeners from config.json.
-     * If Render provides PORT, use it.
-     */
-    const char* renderPort =
-        std::getenv("PORT");
+    int port = 8080;
 
     if (renderPort != nullptr &&
         std::string(renderPort).length() > 0)
     {
         try
         {
-            config["listeners"][0]["port"] =
-                std::stoi(renderPort);
+            port = std::stoi(renderPort);
         }
         catch (...)
         {
@@ -248,12 +237,17 @@ bool loadProductionConfig()
     }
 
     /*
-     * Remove the local database configuration.
-     * The real production database is registered
-     * separately from DATABASE_URL.
+     * Create the minimum Drogon configuration required
+     * for the Render production server.
      */
-    config.removeMember("db_clients");
+    config["listeners"][0]["address"] = "0.0.0.0";
+    config["listeners"][0]["port"] = port;
+    config["listeners"][0]["https"] = false;
 
+    /*
+     * Load listener configuration, then register the
+     * production PostgreSQL database from DATABASE_URL.
+     */
     drogon::app().loadConfigJson(config);
 
     return configureProductionDatabase();
