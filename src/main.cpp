@@ -1,10 +1,10 @@
-﻿#include <drogon/drogon.h>
+﻿
+#include <drogon/drogon.h>
 #include <drogon/orm/DbConfig.h>
 
 #include <json/json.h>
 
 #include <cstdlib>
-#include <fstream>
 #include <iostream>
 #include <string>
 
@@ -23,8 +23,7 @@ bool isAllowedOrigin(const std::string& origin)
         return false;
     }
 
-    std::string allowedOrigins(configuredOrigins);
-
+    const std::string allowedOrigins(configuredOrigins);
     std::size_t start = 0;
 
     while (start < allowedOrigins.length())
@@ -36,7 +35,7 @@ bool isAllowedOrigin(const std::string& origin)
             end = allowedOrigins.length();
         }
 
-        std::string allowed =
+        const std::string allowed =
             allowedOrigins.substr(start, end - start);
 
         if (allowed == origin)
@@ -52,8 +51,7 @@ bool isAllowedOrigin(const std::string& origin)
 
 bool isProduction()
 {
-    const char* databaseUrl =
-        std::getenv("DATABASE_URL");
+    const char* databaseUrl = std::getenv("DATABASE_URL");
 
     return databaseUrl != nullptr &&
            std::string(databaseUrl).length() > 0;
@@ -61,22 +59,19 @@ bool isProduction()
 
 bool configureProductionDatabase()
 {
-    const char* databaseUrl =
-        std::getenv("DATABASE_URL");
+    const char* databaseUrl = std::getenv("DATABASE_URL");
 
     if (databaseUrl == nullptr ||
         std::string(databaseUrl).empty())
     {
-        std::cerr
-            << "[ERROR] DATABASE_URL is not configured."
-            << std::endl;
-
+        std::cerr << "[ERROR] DATABASE_URL is not configured."
+                  << std::endl;
         return false;
     }
 
     std::string url(databaseUrl);
 
-    // Remove query parameters such as ?sslmode=require
+    // Remove query parameters from the URL.
     const std::size_t queryPos = url.find('?');
 
     if (queryPos != std::string::npos)
@@ -100,7 +95,6 @@ bool configureProductionDatabase()
             << "[ERROR] DATABASE_URL must start with "
             << "postgresql:// or postgres://"
             << std::endl;
-
         return false;
     }
 
@@ -113,10 +107,8 @@ bool configureProductionDatabase()
         colonPos == std::string::npos ||
         colonPos > atPos)
     {
-        std::cerr
-            << "[ERROR] Invalid DATABASE_URL format."
-            << std::endl;
-
+        std::cerr << "[ERROR] Invalid DATABASE_URL format."
+                  << std::endl;
         return false;
     }
 
@@ -136,10 +128,8 @@ bool configureProductionDatabase()
 
     if (slashPos == std::string::npos)
     {
-        std::cerr
-            << "[ERROR] DATABASE_URL has no database name."
-            << std::endl;
-
+        std::cerr << "[ERROR] DATABASE_URL has no database name."
+                  << std::endl;
         return false;
     }
 
@@ -149,35 +139,50 @@ bool configureProductionDatabase()
     const std::string databaseName =
         hostPortDatabase.substr(slashPos + 1);
 
-    const std::size_t hostColonPos =
-        hostPort.rfind(':');
-
-    if (hostColonPos == std::string::npos)
+    if (hostPort.empty() || databaseName.empty())
     {
-        std::cerr
-            << "[ERROR] DATABASE_URL has no port."
-            << std::endl;
-
+        std::cerr << "[ERROR] Invalid database host or name."
+                  << std::endl;
         return false;
     }
 
-    const std::string host =
-        hostPort.substr(0, hostColonPos);
+    // Default PostgreSQL port.
+    std::string host = hostPort;
+    unsigned short port = 5432;
 
-    unsigned short port;
+    const std::size_t hostColonPos =
+        hostPort.rfind(':');
 
-    try
+    if (hostColonPos != std::string::npos)
     {
-        port = static_cast<unsigned short>(
-            std::stoi(
-                hostPort.substr(hostColonPos + 1)));
+        host = hostPort.substr(0, hostColonPos);
+
+        try
+        {
+            const int parsedPort =
+                std::stoi(hostPort.substr(hostColonPos + 1));
+
+            if (parsedPort < 1 || parsedPort > 65535)
+            {
+                std::cerr << "[ERROR] Invalid PostgreSQL port."
+                          << std::endl;
+                return false;
+            }
+
+            port = static_cast<unsigned short>(parsedPort);
+        }
+        catch (...)
+        {
+            std::cerr << "[ERROR] Invalid PostgreSQL port."
+                      << std::endl;
+            return false;
+        }
     }
-    catch (...)
-    {
-        std::cerr
-            << "[ERROR] Invalid PostgreSQL port."
-            << std::endl;
 
+    if (host.empty())
+    {
+        std::cerr << "[ERROR] DATABASE_URL has no host."
+                  << std::endl;
         return false;
     }
 
@@ -207,16 +212,13 @@ bool configureProductionDatabase()
 bool loadProductionConfig()
 {
     /*
-     * Render does not provide config.json.
-     * Production configuration comes from environment variables:
-     * - DATABASE_URL for PostgreSQL
-     * - PORT for the HTTP listener
+     * Render provides PORT and DATABASE_URL
+     * through environment variables.
      */
 
     Json::Value config;
 
     const char* renderPort = std::getenv("PORT");
-
     int port = 8080;
 
     if (renderPort != nullptr &&
@@ -225,29 +227,26 @@ bool loadProductionConfig()
         try
         {
             port = std::stoi(renderPort);
+
+            if (port < 1 || port > 65535)
+            {
+                std::cerr << "[ERROR] Invalid PORT value."
+                          << std::endl;
+                return false;
+            }
         }
         catch (...)
         {
-            std::cerr
-                << "[ERROR] Invalid PORT value."
-                << std::endl;
-
+            std::cerr << "[ERROR] Invalid PORT value."
+                      << std::endl;
             return false;
         }
     }
 
-    /*
-     * Create the minimum Drogon configuration required
-     * for the Render production server.
-     */
     config["listeners"][0]["address"] = "0.0.0.0";
     config["listeners"][0]["port"] = port;
     config["listeners"][0]["https"] = false;
 
-    /*
-     * Load listener configuration, then register the
-     * production PostgreSQL database from DATABASE_URL.
-     */
     drogon::app().loadConfigJson(config);
 
     return configureProductionDatabase();
@@ -265,8 +264,7 @@ int main()
 
         auto& app = drogon::app();
 
-        app.setLogLevel(
-            trantor::Logger::kInfo);
+        app.setLogLevel(trantor::Logger::kInfo);
 
         std::cout
             << "[2] Loading configuration..."
@@ -283,7 +281,6 @@ int main()
                 std::cerr
                     << "[ERROR] Production configuration failed."
                     << std::endl;
-
                 return 1;
             }
         }
@@ -292,11 +289,13 @@ int main()
             const char* configFile =
                 std::getenv("KANIMART_CONFIG_FILE");
 
-            app.loadConfigFile(
-                configFile == nullptr ||
-                        std::string(configFile).empty()
+            const std::string configPath =
+                (configFile == nullptr ||
+                 std::string(configFile).empty())
                     ? "config.json"
-                    : configFile);
+                    : configFile;
+
+            app.loadConfigFile(configPath);
 
             std::cout
                 << "[DB] Using local config.json."
@@ -329,6 +328,10 @@ int main()
                     response->addHeader(
                         "Access-Control-Allow-Credentials",
                         "true");
+
+                    response->addHeader(
+                        "Vary",
+                        "Origin");
                 }
 
                 return response;
@@ -350,7 +353,6 @@ int main()
             << "[ERROR] "
             << e.what()
             << std::endl;
-
         return 2;
     }
     catch (...)
@@ -358,7 +360,6 @@ int main()
         std::cerr
             << "[ERROR] Unknown exception."
             << std::endl;
-
         return 3;
     }
 
