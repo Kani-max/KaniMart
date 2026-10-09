@@ -690,12 +690,12 @@ function getFilteredProducts() {
             ? searchInput.value
                 .trim()
                 .toLowerCase()
-            : "https://kanimart-gmvv.onrender.com";
+            : "https://kanimart-ffn1.onrender.com";
 
     const selectedCategory =
         categoryFilter
             ? categoryFilter.value
-            : "https://kanimart-gmvv.onrender.com";
+            : "https://kanimart-ffn1.onrender.com";
 
 
     return products.filter(product => {

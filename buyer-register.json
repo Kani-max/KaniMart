@@ -1,0 +1,6 @@
+﻿{
+  "name": "Test Buyer",
+  "email": "buyer@test.com",
+  "password": "Buyer@123",
+  "role": "BUYER"
+}

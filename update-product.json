@@ -1,0 +1,8 @@
+﻿{
+  "name": "Test Product Updated",
+  "description": "Updated product description by seller 43",
+  "price_cents": 109900,
+  "stock_qty": 15,
+  "category": "Electronics",
+  "image_url": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853"
+}

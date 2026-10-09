@@ -73,7 +73,6 @@ void ProductController::listProducts(
             "SELECT id, seller_id, name, description, "
             "price_cents, stock_qty, category, image_url, created_at "
             "FROM products "
-            "WHERE id NOT IN (1, 3, 6, 8, 9) "
             "ORDER BY id DESC");
 
         Json::Value products(Json::arrayValue);
