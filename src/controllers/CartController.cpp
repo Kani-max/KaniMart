@@ -84,7 +84,7 @@ void CartController::getCart(
             "FROM cart_items ci "
             "JOIN products p ON p.id = ci.product_id "
             "WHERE ci.user_id = $1 "
-            "ORDER BY ci.id",
+            "ORDER BY ci.product_id",
             userId);
 
         Json::Value items(Json::arrayValue);
